@@ -53,7 +53,8 @@ jobs:
             run: |
                 echo "Running tests on agent ${{ matrix.agent }}"
                 for test in ${{ matrix.tests }}; do
-                    go test ./... -run "$test" 
+                    echo "$test"
+                    go test -v "$test" 
                 done
 
     
