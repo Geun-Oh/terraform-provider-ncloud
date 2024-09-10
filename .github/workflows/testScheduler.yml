@@ -45,9 +45,9 @@ jobs:
           - name: Set up test env
             run: |
                 export TF_ACC=1
-                export NCLOUD_REGION={{ secrets.NCLOUD_REGION }}
-                export NCLOUD_ACCESS_KEY={{ secrets.NCLOUD_ACCESS_KEY }}
-                export NCLOUD_SECRET_KEY={{ secrets.NCLOUD_SECRET_KEY }}
+                export NCLOUD_REGION=${{ secrets.NCLOUD_REGION }}
+                export NCLOUD_ACCESS_KEY=${{ secrets.NCLOUD_ACCESS_KEY }}
+                export NCLOUD_SECRET_KEY=${{ secrets.NCLOUD_SECRET_KEY }}
     
           - name: Run tests on agent ${{ matrix.agent }}
             run: |
