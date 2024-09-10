@@ -9,6 +9,8 @@ Provides Object Storage Bucket service resource.
 
 ~> **NOTE:** This resource is platform independent. Does not need VPC configuration.
 
+~> **NOTE:** Since this resource operates with S3 Compatible API, you should config your endpoint(or region and site) properly. Ref to : [storage-objectstorage](https://api.ncloud-docs.com/docs/storage-objectstorage)
+
 ## Example Usage
 
 ```terraform

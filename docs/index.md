@@ -74,10 +74,14 @@ provider "ncloud" {
 
 ### Environment variables
 
-You can provide your credentials via `NCLOUD_ACCESS_KEY` and `NCLOUD_SECRET_KEY`,
-environment variables, representing your Ncloud Access Key and Secret Key, respectively.
-`NCLOUD_REGION` is also used, if applicable:
+* `NCLOUD_ACCESS_KEY` - (Required) Ncloud access key.
+* `NCLOUD_SECRET_KEY` - (Required) Ncloud secret key.
+* `NCLOUD_REGION` - (Required) Ncloud region. 
+* `NCLOUD_OBS_ENDPOINT` - (Optional) Ncloud endpoint. Available with Object Storage service. Can override endpoint even if `region` and `site` is configured.
 
+~> **Note** `access_key`, `secret_key` : [Get authentication keys for your account](http://docs.ncloud.com/en/api_new/api_new-1-1.html#preparation)
+
+If applicable
 ```hcl
 terraform {
   required_providers {
@@ -97,6 +101,7 @@ Usage:
 $ export NCLOUD_ACCESS_KEY="accesskey"
 $ export NCLOUD_SECRET_KEY="secretkey"
 $ export NCLOUD_REGION="KR"
+$ export NCLOUD_OBS_ENDPOINT="endpoint.com" # optional
 $ terraform plan
 ```
 
