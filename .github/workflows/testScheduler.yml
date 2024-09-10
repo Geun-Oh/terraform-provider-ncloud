@@ -9,22 +9,22 @@ on:
         branches: 
             - "main"
             - "ci/test-automation"
+env:
+    PROVIDER_PATH: "github.com/terraform-providers/terraform-provider-ncloud/internal/service" 
 
 jobs:
     test:
         name: Test
         runs-on: ubuntu-latest
-        env:
-            PROVIDER_PATH: "github.com/terraform-providers/terraform-provider-ncloud/internal/service" 
         strategy:
             matrix:
                 go-version: ["1.21", "1.22", "1.23"]
                 agent: [1, 2]  # 5개의 에이전트
                 include:
                     - agent: 1
-                      tests: "$PROVIDER_PATH/storage PROVIDER_PATH/vpc"  # 1번 에이전트가 순차적으로 실행할 테스트 리스트
+                      tests: "${{ github.env.PROVIDER_PATH }}/storage ${{ github.env.PROVIDER_PATH }}/vpc"  # 1번 에이전트가 순차적으로 실행할 테스트 리스트
                     - agent: 2
-                      tests: "$PROVIDER_PATH/server PROVIDER_PATH/redis"  # 2번 에이전트가 실행할 테스트
+                      tests: "${{ github.env.PROVIDER_PATH }}/server ${{ github.env.PROVIDER_PATH }}/redis"  # 2번 에이전트가 실행할 테스트
                     # - agent: 3
                     #   tests: "TestIndependentSuite3 TestIndependentSuite4"  # 3번 에이전트가 실행할 테스트
                     # - agent: 4
