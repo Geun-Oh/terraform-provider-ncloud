@@ -19,7 +19,7 @@ jobs:
         strategy:
             matrix:
                 go-version: ["1.21", "1.22", "1.23"]
-                agent: [1, 2, 3, 4, 5]  # 5개의 에이전트
+                agent: [1, 2]  # 5개의 에이전트
                 include:
                     - agent: 1
                       tests: "$PROVIDER_PATH/storage PROVIDER_PATH/vpc"  # 1번 에이전트가 순차적으로 실행할 테스트 리스트
