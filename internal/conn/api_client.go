@@ -48,8 +48,29 @@ func genEndpointWithCode(region, site string) string {
 	case "fin":
 		s3Endpoint = fmt.Sprintf("https://%[1]s.object.fin-ncloudstorage.com", strings.ToLower(region))
 	default:
-		s3Endpoint = fmt.Sprintf("https://%[1]s.object.ncloudstorage.com", strings.ToLower(region))
+		s3Endpoint = fmt.Sprintf("https://%[1]s.object.ncloudstorage.com", mapRegionWithEnv(region))
 	}
 
 	return s3Endpoint
+}
+
+// API docs: https://api.ncloud-docs.com/docs/platform-region-getregionlist
+// Common object storage docs; https://api.ncloud-docs.com/docs/storage-objectstorage
+func mapRegionWithEnv(region string) string {
+	var endpointRegion string
+	switch region {
+	case "KR":
+		endpointRegion = "kr"
+	case "USWN":
+		endpointRegion = "us"
+	case "SGN":
+		endpointRegion = "sg"
+	case "JPN":
+		endpointRegion = "jp"
+	case "DEN":
+		endpointRegion = "de"
+	default:
+		endpointRegion = "kr"
+	}
+	return endpointRegion
 }
