@@ -1,0 +1,60 @@
+name: Test Scheduler
+
+# on:
+#     schedule:
+#         - cron:  "0 0 * * *"
+
+on:
+    push:
+        branches: 
+            - "main"
+            - "ci/test-automation"
+
+jobs:
+    test:
+        name: Test
+        runs-on: ubuntu-latest
+        env:
+            PROVIDER_PATH: "github.com/terraform-providers/terraform-provider-ncloud/internal/service" 
+        strategy:
+            matrix:
+                go-version: ["1.21", "1.22", "1.23"]
+                agent: [1, 2, 3, 4, 5]  # 5개의 에이전트
+                include:
+                    - agent: 1
+                      tests: "$PROVIDER_PATH/storage PROVIDER_PATH/vpc"  # 1번 에이전트가 순차적으로 실행할 테스트 리스트
+                    - agent: 2
+                      tests: "$PROVIDER_PATH/server PROVIDER_PATH/redis"  # 2번 에이전트가 실행할 테스트
+                    # - agent: 3
+                    #   tests: "TestIndependentSuite3 TestIndependentSuite4"  # 3번 에이전트가 실행할 테스트
+                    # - agent: 4
+                    #   tests: "TestIndependentSuite5 TestIndependentSuite6"  # 4번 에이전트가 실행할 테스트
+                    # - agent: 5
+                    #   tests: "TestIndependentSuite7 TestIndependentSuite8"  # 5번 에이전트가 실행할 테스트
+
+        steps:
+          - name: checkout branch
+            uses: actions/checkout@v4
+    
+          - name: Set up Go
+            uses: actions/setup-go@v5
+            with:
+              go-version: ${{ matrix.go-version }}
+              cache: false
+
+          - name: Set up test env
+            run: |
+                export TF_ACC=1
+                export NCLOUD_REGION={{ secrets.NCLOUD_REGION }}
+                export NCLOUD_ACCESS_KEY={{ secrets.NCLOUD_ACCESS_KEY }}
+                export NCLOUD_SECRET_KEY={{ secrets.NCLOUD_SECRET_KEY }}
+    
+          - name: Run tests on agent ${{ matrix.agent }}
+            run: |
+                echo "Running tests on agent ${{ matrix.agent }}"
+                for test in ${{ matrix.tests }}; do
+                    go test ./... -run $test
+                done
+
+    
+    
