@@ -1,0 +1,54 @@
+{
+  "results": {
+    "tool": {
+      "name": "gotest"
+    },
+    "summary": {
+      "tests": 7,
+      "passed": 7,
+      "failed": 0,
+      "pending": 0,
+      "skipped": 0,
+      "other": 0,
+      "start": 0,
+      "stop": 0
+    },
+    "tests": [
+      {
+        "name": "TestAccResourceNcloudObjectStorage_bucket_acl_basic",
+        "status": "passed",
+        "duration": 18020
+      },
+      {
+        "name": "TestAccDataSourceNcloudObjectStorage_bucket_basic",
+        "status": "passed",
+        "duration": 11610
+      },
+      {
+        "name": "TestAccResourceNcloudObjectStorage_bucket_basic",
+        "status": "passed",
+        "duration": 11290
+      },
+      {
+        "name": "TestAccResourceNcloudObjectStorage_object_acl_basic",
+        "status": "passed",
+        "duration": 26540
+      },
+      {
+        "name": "TestAccResourceNcloudObjectStorage_object_copy_basic",
+        "status": "passed",
+        "duration": 31870
+      },
+      {
+        "name": "TestAccDataSourceNcloudObjectStorage_object_basic",
+        "status": "passed",
+        "duration": 23090
+      },
+      {
+        "name": "TestAccResourceNcloudObjectStorage_object_basic",
+        "status": "passed",
+        "duration": 21580
+      }
+    ]
+  }
+}
