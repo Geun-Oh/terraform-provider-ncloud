@@ -57,5 +57,9 @@ jobs:
                     echo $PWD
                     echo $ls
                     echo "$test"
-                    go test -timeout 2h -v ./internal/service/objectstorage | go-ctrf-json-reporter -output ctrf-report.json
+                    go test -timeout 2h -v -json "$test" | go-ctrf-json-reporter -output ctrf-report.json
                 done
+
+          - name: Cat json summary
+            run: |
+                cat ctrf-report.json
