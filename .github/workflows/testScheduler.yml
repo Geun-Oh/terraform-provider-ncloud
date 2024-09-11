@@ -41,6 +41,10 @@ jobs:
             with:
               go-version: ${{ matrix.go-version }}
               cache: false
+
+          - name: Install ctrf cli tool
+            run: |
+                go install github.com/ctrf-io/go-ctrf-json-reporter/cmd/go-ctrf-json-reporter@latest
     
           - name: Run tests on agent ${{ matrix.agent }}
             run: |
@@ -53,8 +57,10 @@ jobs:
                     echo $PWD
                     echo $ls
                     echo "$test"
-                    go test -timeout 2h -v "$test" 
+                    go test -timeout 2h -v "$test" | go-ctrf-json-reporter -output ctrf-report.json
                 done
-
-    
-    
+                
+          - name: Cat json summary
+            run: |
+                cat ctrf-report.json
+            
