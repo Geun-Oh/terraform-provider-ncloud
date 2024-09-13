@@ -54,21 +54,21 @@ jobs:
                 }
                 EOF
 
-            - name: Write variables.tf
-              run: |
-                cat << EOF > variables.tf
-                variable "access_key" {
-                  type = string
-                }
+            # - name: Write variables.tf
+            #   run: |
+            #     cat << EOF > variables.tf
+            #     variable "access_key" {
+            #       type = string
+            #     }
 
-                variable "secret_key" {
-                  type = string
-                }
+            #     variable "secret_key" {
+            #       type = string
+            #     }
 
-                variable "region" {
-                  type = string
-                }
-                EOF
+            #     variable "region" {
+            #       type = string
+            #     }
+            #     EOF
             
             # - name: Write terraform.tfvars
             #   run: |
