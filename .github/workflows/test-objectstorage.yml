@@ -31,7 +31,7 @@ jobs:
             - name: Check GOBIN
               id: go-binary
               run: |
-                echo "GOBIN=${go env GOPATH}/bin" >> $GITHUB_OUTPUT
+                echo "GOBIN=$HOME/go/bin" >> $GITHUB_OUTPUT
 
             - name: Run go Install 
               run: |
@@ -39,8 +39,8 @@ jobs:
 
             - name: Write .terraformrc
               run: |
-                touch ~/.terraformrc
-                cat << EOF > ~/.terraformrc
+                touch $HOME/.terraformrc
+                cat << EOF > $HOME/.terraformrc
                 provider_installation {
 
                   dev_overrides {
