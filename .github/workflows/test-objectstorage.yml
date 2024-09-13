@@ -90,9 +90,9 @@ jobs:
                 }
 
                 provider "ncloud" {
-                  access_key  = ${{ secrets.NCLOUD_ACCESS_KEY }}
-                  secret_key  = ${{ secrets.NCLOUD_SECRET_KEY }}
-                  region      = ${{ matrix.region }}
+                  access_key  = "${{ secrets.NCLOUD_ACCESS_KEY }}"
+                  secret_key  = "${{ secrets.NCLOUD_SECRET_KEY }}"
+                  region      = "${{ matrix.region }}"
                   support_vpc = ${{ matrix.region == 'KR' || matrix.region == 'JPN' || matrix.region == 'SGN' }}
                 }
 
