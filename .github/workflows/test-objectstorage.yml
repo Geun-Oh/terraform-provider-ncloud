@@ -31,7 +31,7 @@ jobs:
             - name: Check GOBIN
               id: go-binary
               run: |
-                echo "GOBIN=${go env GOBIN}" >> "$GITHUB_OUTPUT"
+                echo "GOBIN=${go env GOPATH}/bin" >> $GITHUB_OUTPUT
 
             - name: Run go Install 
               run: |
