@@ -1,0 +1,137 @@
+name: Testing Object Storage
+
+on:
+    push:
+        branches:
+            - "ci/test-automation"
+
+jobs:
+    test-object-storage:
+        name: Test
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                go-version: ['1.21']
+                region: ['KR', 'SGN', 'JPN', 'USWN', 'DEN']
+
+        steps:
+            - name: checkout branch
+              uses: actions/checkout@v4
+
+            - name: Set up Go
+              uses: actions/setup-go@v5
+              with:
+                go-version: ${{ matrix.go-version }} 
+                cache: false
+
+            - name: Check Go Version
+              run: |
+                go version
+
+            - name: Check GOBIN
+              id: go-binary
+              run: |
+                echo "GOBIN=${go env GOBIN}" >> "$GITHUB_OUTPUT"
+
+            - name: Run go Install 
+              run: |
+                go install .
+
+            - name: Write .terraformrc
+              run: |
+                touch ~/.terraformrc
+                cat << EOF > ~/.terraformrc
+                provider_installation {
+
+                  dev_overrides {
+                      "NaverCloudPlatform/ncloud" = "${{ steps.go-binary.outputs.GOBIN }}"
+                  }
+
+                  # For all other providers, install them directly from their origin provider
+                  # registries as normal. If you omit this, Terraform will _only_ use
+                  # the dev_overrides block, and so no other providers will be available.
+                  direct {}
+                }
+                EOF
+
+            - name: Write .tf files
+              run: |
+                cat << EOF > variables.tf
+                variable "access_key" {
+                  type = string
+                }
+
+                variable "secret_key" {
+                  type = string
+                }
+
+                variable "region" {
+                  type = string
+                }
+                EOF
+
+                cat << EOF > terraform.tfvars
+                access_key = ${{ secrets.NCLOUD_ACCESS_KEY }}
+                secret_key = ${{ secrets.NCLOUD_SECRET_KEY }}
+                region     = ${{ matrix.region }}
+                EOF
+
+                cat << EOF > main.tf
+                terraform {
+                  required_providers {
+                    ncloud = {
+                      source = "NaverCloudPlatform/ncloud"
+                    }
+                  }
+                }
+
+                provider "ncloud" {
+                  access_key  = var.access_key
+                  secret_key  = var.secret_key
+                  region      = var.region
+                  support_vpc = ${{ matrix.region == 'KR' || matrix.region == 'JPN' || matrix.region == 'SGN' }}
+                }
+
+                resource "ncloud_objectstorage_bucket" "testing_bucket" {
+                  bucket_name			= "geunoh-bussdt"
+                }
+
+                resource "ncloud_objectstorage_bucket_acl" "testing_bucket_acl" {
+                  bucket_name = ncloud_objectstorage_bucket.testing_bucket.bucket_name
+                  rule = "public-read"
+                }
+
+                resource "ncloud_objectstorage_object" "testing_object" {
+                  bucket 				= ncloud_objectstorage_bucket.testing_bucket.bucket_name
+                  key					= "media/test.md"
+                  source				= "./test.md"
+                }
+
+                resource "ncloud_objectstorage_object_acl" "testing_acl" {
+                  object_id			= ncloud_objectstorage_object.testing_object.id
+                  rule				= "public-read"
+                }
+                EOF
+
+                cat << EOF > test.md
+                hello world!
+                EOF
+
+            - name: Set up Terraform
+              uses: hashicorp/setup-terraform@v3
+              with:
+                terraform_version: "1.1.7"
+
+            - name: Terraform Init
+              run: terraform init
+
+            - name: Terraform Plan
+              run: terraform plan
+
+            - name: Terraform Apply
+              id: apply_step
+              run: terraform apply -auto-approve
+
+            - name: Terraform Destroy
+              if: steps.apply_step.outcome == 'success'
+              run: terraform destroy -auto-approve
