@@ -70,13 +70,13 @@ jobs:
                 }
                 EOF
             
-            - name: Write terraform.tfvars
-              run: |
-                cat << EOF > terraform.tfvars
-                access_key = ${{ secrets.NCLOUD_ACCESS_KEY }}
-                secret_key = ${{ secrets.NCLOUD_SECRET_KEY }}
-                region     = ${{ matrix.region }}
-                EOF
+            # - name: Write terraform.tfvars
+            #   run: |
+            #     cat << EOF > terraform.tfvars
+            #     access_key = ${{ secrets.NCLOUD_ACCESS_KEY }}
+            #     secret_key = ${{ secrets.NCLOUD_SECRET_KEY }}
+            #     region     = ${{ matrix.region }}
+            #     EOF
 
             - name: Write main.tf
               run: |  
@@ -90,9 +90,9 @@ jobs:
                 }
 
                 provider "ncloud" {
-                  access_key  = var.access_key
-                  secret_key  = var.secret_key
-                  region      = var.region
+                  access_key  = ${{ secrets.NCLOUD_ACCESS_KEY }}
+                  secret_key  = ${{ secrets.NCLOUD_SECRET_KEY }}
+                  region      = ${{ matrix.region }}
                   support_vpc = ${{ matrix.region == 'KR' || matrix.region == 'JPN' || matrix.region == 'SGN' }}
                 }
 
