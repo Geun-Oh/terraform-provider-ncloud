@@ -73,9 +73,9 @@ jobs:
             # - name: Write terraform.tfvars
             #   run: |
             #     cat << EOF > terraform.tfvars
-            #     access_key = ${{ secrets.NCLOUD_ACCESS_KEY }}
-            #     secret_key = ${{ secrets.NCLOUD_SECRET_KEY }}
-            #     region     = ${{ matrix.region }}
+            #     access_key = 
+            #     secret_key =
+            #     region     = 
             #     EOF
 
             - name: Write main.tf
