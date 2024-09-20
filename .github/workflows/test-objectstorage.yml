@@ -97,7 +97,7 @@ jobs:
                 }
 
                 resource "ncloud_objectstorage_bucket" "testing_bucket" {
-                  bucket_name			= "geunoh-bussdt"
+                  bucket_name			= "geunoh-test1"
                 }
 
                 resource "ncloud_objectstorage_bucket_acl" "testing_bucket_acl" {
