@@ -58,6 +58,8 @@ func (o *objectACLResource) Create(ctx context.Context, req resource.CreateReque
 		ACL:    plan.Rule,
 	}
 
+	fmt.Println("=====================", bucketName, key)
+
 	tflog.Info(ctx, "PutObjectACL reqParams="+common.MarshalUncheckedString(reqParams))
 
 	response, err := o.config.Client.ObjectStorage.PutObjectAcl(ctx, reqParams)
