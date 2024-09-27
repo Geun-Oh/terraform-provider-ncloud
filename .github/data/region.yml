@@ -1,0 +1,7 @@
+regions:
+  object_storage:
+    - KR
+    - SGN
+    - JPN
+    - USWN
+    - DEN
