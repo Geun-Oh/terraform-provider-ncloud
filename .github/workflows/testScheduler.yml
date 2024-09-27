@@ -47,8 +47,8 @@ jobs:
     
           - name: Configure AWS CLI with NCP S3 compatible endpoint
             run: |
-              aws configure set aws_access_key_id ${{ secrets.NCP_ACCESS_KEY_ID }}
-              aws configure set aws_secret_access_key ${{ secrets.NCP_SECRET_ACCESS_KEY }}
+              aws configure set aws_access_key_id ${{ secrets.NCLOUD_ACCESS_KEY }}
+              aws configure set aws_secret_access_key ${{ secrets.NCLOUD_SECRET_KEY }}
               aws configure set region kr-standard
               aws configure set s3.endpoint_url https://kr.object.ncloudstorage.com
 
