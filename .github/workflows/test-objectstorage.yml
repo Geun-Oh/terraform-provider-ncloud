@@ -23,7 +23,7 @@ jobs:
             - name: Read regions from external YAML file
               id: load-matrix
               run: |
-                regions=$(cat .github/data/regions.yml | yq '.regions.object_storage | join(",")')
+                regions=$(cat .github/data/region.yml | yq '.regions.object_storage | join(",")')
                 echo "regions=${regions}" >> $GITHUB_ENV
 
             - name: Set matrix dynamically
