@@ -11,13 +11,31 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                go-version: ['1.21']
-                region: ['KR']
+                region: [default]
+                # go-version: ['1.21']
+                # region: ['KR']
                 # region: ['KR', 'SGN', 'JPN', 'USWN', 'DEN']
 
         steps:
             - name: checkout branch
               uses: actions/checkout@v4
+
+            - name: Read regions from external YAML file
+              id: load-matrix
+              run: |
+                regions=$(cat .github/data/regions.yml | yq '.regions.object_storage | join(",")')
+                echo "regions=${regions}" >> $GITHUB_ENV
+
+            - name: Set matrix dynamically
+              uses: actions/github-script@v6
+              with:
+                script: |
+                    regions = process.env.regions.split(',')
+                    return {
+                      matrix: {
+                        region: regions
+                      }
+                    }
 
             - name: Set up Go
               uses: actions/setup-go@v5
@@ -54,30 +72,6 @@ jobs:
                   direct {}
                 }
                 EOF
-
-            # - name: Write variables.tf
-            #   run: |
-            #     cat << EOF > variables.tf
-            #     variable "access_key" {
-            #       type = string
-            #     }
-
-            #     variable "secret_key" {
-            #       type = string
-            #     }
-
-            #     variable "region" {
-            #       type = string
-            #     }
-            #     EOF
-            
-            # - name: Write terraform.tfvars
-            #   run: |
-            #     cat << EOF > terraform.tfvars
-            #     access_key = 
-            #     secret_key =
-            #     region     = 
-            #     EOF
 
             - name: Write main.tf
               run: |  
