@@ -45,6 +45,7 @@ jobs:
             with:
               aws-access-key-id: ${{ secrets.NCLOUD_ACCESS_KEY }}
               aws-secret-access-key: ${{ secrets.NCLOUD_SECRET_KEY }}
+              aws-region: "kr-standard"
 
           - name: Install ctrf cli tool
             run: |
