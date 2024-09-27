@@ -9,8 +9,6 @@ on:
         branches: 
             - "main"
             # - "ci/test-automation"
-env:
-    PROVIDER_PATH: "./internal/service" 
 
 jobs:
     test:
@@ -22,9 +20,9 @@ jobs:
                 agent: ["obs_vpc_agent", "server_redis_agent"]  # 5개의 에이전트
                 include:
                     - agent: "obs_vpc_agent"
-                      tests: "./internal/service/objectstorage"  # 1번 에이전트가 순차적으로 실행할 테스트 리스트
+                      tests: "objectstorage vpc"  # 1번 에이전트가 순차적으로 실행할 테스트 리스트
                     - agent: "server_redis_agent"
-                      tests: "./internal/service/server ./internal/service/redis"  # 2번 에이전트가 실행할 테스트
+                      tests: "server redis"  # 2번 에이전트가 실행할 테스트
                     # - agent: 3
                     #   tests: "TestIndependentSuite3 TestIndependentSuite4"  # 3번 에이전트가 실행할 테스트
                     # - agent: 4
@@ -42,6 +40,12 @@ jobs:
               go-version: ${{ matrix.go-version }}
               cache: false
 
+          - name: Configure AWS credentials
+            uses: aws-actions/configure-aws-credentials@v2
+            with:
+              aws-access-key-id: ${{ secrets.NCLOUD_ACCESS_KEY }}
+              aws-secret-access-key: ${{ secrets.NCLOUD_SECRET_KEY }}
+
           - name: Install ctrf cli tool
             run: |
                 go install github.com/ctrf-io/go-ctrf-json-reporter/cmd/go-ctrf-json-reporter@latest
@@ -57,6 +61,8 @@ jobs:
                     echo $PWD
                     echo $ls
                     echo "$test"
-                    go test -timeout 2h -v -json "$test" | go-ctrf-json-reporter -output ctrf-report.json
-                    cat ctrf-report.json
+                    go test -timeout 2h -v -json ./internal/service/"$test" | go-ctrf-json-reporter -output "$test"-report.json
+                    cat "$test"-report.json
+
+                    aws --endpoint-url=https://kr.object.ncloudstorage.com -region us-east-1 s3 cp "$test"-report.json s3://test-dashboard/data/"$test"-report.json
                 done
