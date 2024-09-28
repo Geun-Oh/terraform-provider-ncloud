@@ -6,69 +6,52 @@ on:
             - "ci/test-automation"
 
 jobs:
+    matrix-builder:
+      runs-on: ubuntu-latest
+      outputs:
+        matrix: ${{ steps.set-matrix.outputs.matrix }}
+      steps:
+      - uses: actions/checkout@v4
+      - id: set-matrix
+        run: |
+          REGIONS=$(yq eval '.regions.object_storage[]' .github/data/region.yml | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "matrix=${REGIONS}" >> $GITHUB_OUTPUT
+
     test-object-storage:
         name: Test
+        needs: matrix-builder
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                region: [default]
-                # go-version: ['1.21']
-                # region: ['KR']
-                # region: ['KR', 'SGN', 'JPN', 'USWN', 'DEN']
+              region: ${{ fromJson(needs.matrix-builder.outputs.matrix) }}
 
         steps:
             - name: checkout branch
               uses: actions/checkout@v4
 
-            - name: Read regions from external YAML file
-              id: load-matrix
-              run: |
-                regions=$(cat .github/data/region.yml | yq '.regions.object_storage | join(",")')
-                echo "regions=${regions}" >> $GITHUB_ENV
-
-            - name: Set matrix dynamically
-              uses: actions/github-script@v6
-              with:
-                script: |
-                    regions = process.env.regions.split(',')
-                    return {
-                      matrix: {
-                        region: regions
-                      }
-                    }
-
             - name: Set up Go
               uses: actions/setup-go@v5
               with:
-                go-version: ${{ matrix.go-version }} 
+                go-version: '1.21'  # Specify a Go version
                 cache: false
 
             - name: Check Go Version
-              run: |
-                go version
+              run: go version
 
             - name: Check GOBIN
               id: go-binary
-              run: |
-                echo "GOBIN=$HOME/go/bin" >> $GITHUB_OUTPUT
+              run: echo "GOBIN=$HOME/go/bin" >> $GITHUB_OUTPUT
 
             - name: Run go Install 
-              run: |
-                go install .
+              run: go install .
 
             - name: Write .terraformrc
               run: |
-                touch $HOME/.terraformrc
                 cat << EOF > $HOME/.terraformrc
                 provider_installation {
-
                   dev_overrides {
                       "NaverCloudPlatform/ncloud" = "${{ steps.go-binary.outputs.GOBIN }}"
                   }
-
-                  # For all other providers, install them directly from their origin provider
-                  # registries as normal. If you omit this, Terraform will _only_ use
-                  # the dev_overrides block, and so no other providers will be available.
                   direct {}
                 }
                 EOF
@@ -92,7 +75,7 @@ jobs:
                 }
 
                 resource "ncloud_objectstorage_bucket" "testing_bucket" {
-                  bucket_name			= "geunoh-test4"
+                  bucket_name = "geunoh-test4"
                 }
 
                 resource "ncloud_objectstorage_bucket_acl" "testing_bucket_acl" {
@@ -101,22 +84,19 @@ jobs:
                 }
 
                 resource "ncloud_objectstorage_object" "testing_object" {
-                  bucket 				= ncloud_objectstorage_bucket.testing_bucket.bucket_name
-                  key					= "media/test.md"
-                  source				= "./test.md"
+                  bucket  = ncloud_objectstorage_bucket.testing_bucket.bucket_name
+                  key     = "media/test.md"
+                  source  = "./test.md"
                 }
 
                 resource "ncloud_objectstorage_object_acl" "testing_acl" {
-                  object_id			= ncloud_objectstorage_object.testing_object.id
-                  rule				= "public-read"
+                  object_id = ncloud_objectstorage_object.testing_object.id
+                  rule      = "public-read"
                 }
                 EOF
 
             - name: Write test.md
-              run: |
-                cat << EOF > test.md
-                hello world!
-                EOF
+              run: echo "hello world!" > test.md
 
             - name: Set up Terraform
               uses: hashicorp/setup-terraform@v3
