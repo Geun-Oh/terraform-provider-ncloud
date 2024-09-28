@@ -20,16 +20,42 @@ jobs:
                 agent: ["obs_vpc_agent", "server_redis_agent"]  # 5개의 에이전트
                 include:
                     - agent: "obs_vpc_agent"
-                      tests: "objectstorage vpc"  # 1번 에이전트가 순차적으로 실행할 테스트 리스트
-                    - agent: "server_redis_agent"
-                      tests: "server redis"  # 2번 에이전트가 실행할 테스트
-                    # - agent: 3
-                    #   tests: "TestIndependentSuite3 TestIndependentSuite4"  # 3번 에이전트가 실행할 테스트
-                    # - agent: 4
-                    #   tests: "TestIndependentSuite5 TestIndependentSuite6"  # 4번 에이전트가 실행할 테스트
-                    # - agent: 5
-                    #   tests: "TestIndependentSuite7 TestIndependentSuite8"  # 5번 에이전트가 실행할 테스트
-
+                      tests: "objectstorage vpc"
+                    - agent: "server_agent"
+                      tests: "server"
+                    - agent: "redis_agent"
+                      tests: "redis"  
+                    - agent: "autoscaling_agent"
+                      tests: "autoscaling"
+                    - agent: "cdss_agent"
+                      tests: "cdss"
+                    - agent: "hadoop_agen"
+                      tests: "hadoop"  
+                    - agent: "loadbalancer_agent"
+                      tests: "loadbalancer"
+                    - agent: "mongodb_agent"
+                      tests: "mongodb"
+                    - agent: "mssql_agent"
+                      tests: "mssql"  
+                    - agent: "loadbalancer_agent"
+                      tests: "loadbalancer"
+                    - agent: "mongodb_agent"
+                      tests: "mongodb"
+                    - agent: "mssql_agent"
+                      tests: "mssql"  
+                    - agent: "loadbalancer_agent"
+                      tests: "loadbalancer"
+                    - agent: "mongodb_agent"
+                      tests: "mongodb"
+                    - agent: "mssql_agent"
+                      tests: "mssql"  
+                    - agent: "nasvolume_agent"
+                      tests: "nasvolume"
+                    - agent: "nks_agent"
+                      tests: "nks"  
+                    - agent: "ses_agent"
+                      tests: "ses"
+                      
         steps:
           - name: checkout branch
             uses: actions/checkout@v4
