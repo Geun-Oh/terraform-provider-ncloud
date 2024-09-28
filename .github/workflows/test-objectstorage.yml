@@ -56,9 +56,20 @@ jobs:
                 }
                 EOF
 
-            - name: Write main.tf
-              run: |  
-                cat << EOF > main.tf
+            - name: Write locals.tf
+              run: |
+                cat << EOF > locals.tf
+                locals {
+                  access_key  = "${{ secrets.NCLOUD_ACCESS_KEY }}"
+                  secret_key  = "${{ secrets.NCLOUD_SECRET_KEY }}" 
+                  region = "${{ matrix.region }}"
+                  support_vpc = ${{ matrix.region == 'KR' || matrix.region == 'JPN' || matrix.region == 'SGN' }} 
+                }
+                EOF
+
+            - name: Write provider.tf
+              run: |
+                cat << EOF provider.tf
                 terraform {
                   required_providers {
                     ncloud = {
@@ -68,12 +79,16 @@ jobs:
                 }
 
                 provider "ncloud" {
-                  access_key  = "${{ secrets.NCLOUD_ACCESS_KEY }}"
-                  secret_key  = "${{ secrets.NCLOUD_SECRET_KEY }}"
-                  region      = "${{ matrix.region }}"
-                  support_vpc = ${{ matrix.region == 'KR' || matrix.region == 'JPN' || matrix.region == 'SGN' }}
+                  access_key  = local.access_key
+                  secret_key  = local.secret_key
+                  region      = local.region
+                  support_vpc = local.support_vpc
                 }
+                EOF
 
+            - name: Write main.tf
+              run: |  
+                cat << EOF > main.tf
                 resource "ncloud_objectstorage_bucket" "testing_bucket" {
                   bucket_name = "geunoh-test4"
                 }
