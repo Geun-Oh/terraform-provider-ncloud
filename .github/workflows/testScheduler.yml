@@ -54,7 +54,7 @@ jobs:
                     - agent: "nks_agent"
                       tests: "nks"  
                     - agent: "ses_agent"
-                      tests: "ses"
+                      tests: "ses" 
                       
         steps:
           - name: checkout branch
