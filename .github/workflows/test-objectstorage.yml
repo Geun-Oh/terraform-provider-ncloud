@@ -68,23 +68,7 @@ jobs:
                 EOF
 
             - name: Write provider.tf
-              run: |
-                cat << EOF > provider.tf
-                terraform {
-                  required_providers {
-                    ncloud = {
-                      source = "NaverCloudPlatform/ncloud"
-                    }
-                  }
-                }
-
-                provider "ncloud" {
-                  access_key  = local.access_key
-                  secret_key  = local.secret_key
-                  region      = local.region
-                  support_vpc = local.support_vpc
-                }
-                EOF
+              run: ln -s .github/data/samples/provider.tf provider.tf
 
             - name: Write main.tf
               run: ln -s .github/data/samples/objectstorage.tf main.tf
