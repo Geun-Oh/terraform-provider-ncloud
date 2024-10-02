@@ -18,7 +18,7 @@ jobs:
     - name: Convert YAML to JSON
       id: convert-to-json
       run: |
-        json_output=$(yq eval -o=json .github/data/regions.yml)
+        json_output=$(yq eval -o=json .github/data/region.yml)
         echo "JSON output: $json_output"
         echo "matrix=$json_output" >> $GITHUB_OUTPUT
 
