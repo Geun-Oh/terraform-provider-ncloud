@@ -19,8 +19,8 @@ jobs:
           AGENTS='["objectstorage", "server", "vpc", "redis", "ses", "nks", "nasvolume", "mysql", "mssql", "mongodb", "loadbalancer", "hadoop", "autoscaling"]'
           echo "agent_list=$AGENTS" >> $GITHUB_OUTPUT
       
-      - name: Debug Output
-        run: echo "Agents: ${{ steps.set-agents.outputs.agent_list }}"
+      # - name: Debug Output
+      #   run: echo "Agents: ${{ steps.set-agents.outputs.agent_list }}"
 
   setup-regions:
     name: Setup Regions for Agents
@@ -47,8 +47,8 @@ jobs:
           REGIONS=$(yq eval ".regions.$AGENT_KEY[]" .github/data/region.yml | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "region_matrix={\"${{ matrix.agent }}\": $REGIONS}" >> $GITHUB_OUTPUT
 
-      - name: Debug Output
-        run: echo "Regions for ${{ matrix.agent }}: ${{ steps.set-regions.outputs.region_matrix }}"
+      # - name: Debug Output
+      #   run: echo "Regions for ${{ matrix.agent }}: ${{ steps.set-regions.outputs.region_matrix }}"
 
   combine-matrix:
     name: Combine Agent-Region Matrix
