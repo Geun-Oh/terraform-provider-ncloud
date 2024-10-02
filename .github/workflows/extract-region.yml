@@ -60,7 +60,7 @@ jobs:
       combined_matrix: ${{ steps.exec.outputs.combined_matrix }}
     strategy:
       matrix:
-        region_matrix: ${{ needs.setup-regions.outputs.region_matrix }}
+        region_matrix: ${{ fromJson(needs.setup-regions.outputs.region_matrix) }}
     steps:
       - name: Combine Matrices
         id: combine
