@@ -17,7 +17,6 @@ jobs:
         id: set-agents
         run: |
           AGENTS='["objectstorage", "server", "vpc", "redis", "ses", "nks", "nasvolume", "mysql", "mssql", "mongodb", "loadbalancer", "hadoop", "autoscaling"]'
-          echo $AGENTS | jq .
           echo "agent_list=$AGENTS" >> $GITHUB_OUTPUT
       
       # - name: Debug Output
@@ -62,8 +61,9 @@ jobs:
         id: combine
         run: |
           AGENTS='${{ needs.setup-agents.outputs.agent_list }}'
+          AGENTS_JSON=$(echo $AGENTS | jq -c '.')
           COMBINED_MATRIX="{\"include\":[]}"
-          for agent in $(echo $AGENTS | jq -r '.[]'); do
+          for agent in $(echo $AGENTS_JSON | jq -r '.[]'); do
             REGIONS=$(echo '${{ toJson(needs.setup-regions.outputs.region_matrix) }}' | jq -r ".[\"$agent\"][]")
             for region in $REGIONS; do
               COMBINED_MATRIX=$(echo $COMBINED_MATRIX | jq --arg agent "$agent" --arg region "$region" '.include += [{"agent": $agent, "region": $region}]')
