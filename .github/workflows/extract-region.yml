@@ -39,7 +39,7 @@ jobs:
       - id: set-matrix
         run: |
           AGENT_KEY=$(echo "${{ matrix.agent }}" | tr '-' '_')
-          REGIONS=$(yq eval '.regions.${AGENT_KEY}[]' .github/data/region.yml | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          REGIONS=$(yq eval '.regions.$AGENT_KEY[]' .github/data/region.yml | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "matrix=${REGIONS}" >> $GITHUB_OUTPUT
 
   runner:
