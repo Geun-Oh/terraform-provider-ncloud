@@ -5,3 +5,29 @@ regions:
     - JPN
     - USWN
     - DEN
+  server:
+    - KR
+  vpc:
+    - KR
+  redis:
+    - KR
+  ses:
+    - KR
+  nks:
+    - KR
+    - SGN
+    - JPN
+  nasvolume:
+    - KR
+  mysql:
+    - KR
+  mssql:
+    - KR
+  mongodb:
+    - KR
+  loadbalancer:
+    - KR
+  hadoop: 
+    - KR
+  autoscaling:
+    - KR
