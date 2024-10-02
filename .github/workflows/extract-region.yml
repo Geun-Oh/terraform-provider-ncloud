@@ -1,4 +1,4 @@
-name: Test Scheduler
+name: Region Extraction
 
 on:
   push:
@@ -23,7 +23,7 @@ jobs:
 
       - id: set-regions
         run: |
-          REGION_MAP=$(yq eval -o=json .regions .github/data/region.yml)
+          REGION_MAP=$(yq eval -o=json .regions[] .github/data/region.yml)
           echo "region_map=$REGION_MAP" >> $GITHUB_OUTPUT
 
   matrix-builder:
