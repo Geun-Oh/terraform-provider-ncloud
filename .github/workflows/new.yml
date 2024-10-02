@@ -1,55 +1,34 @@
-name: shared matrix
+name: Dynamic Matrix Workflow
+
 on:
   push:
-  workflow_dispatch:
+    branches:
+      - main
 
 jobs:
-  define-matrix:
+  prepare-matrix:
     runs-on: ubuntu-latest
-
     outputs:
-      colors: ${{ steps.colors.outputs.colors }}
-
+      dynamic-matrix: ${{ steps.convert-to-json.outputs.matrix }}
     steps:
-      - name: Define Colors
-        id: colors
-        run: |
-          echo 'colors=["objectstorage", "ses", "vpc"]' >> "$GITHUB_OUTPUT"
+    - name: Check out code
+      uses: actions/checkout@v4
 
-  produce-artifacts:
-    runs-on: ubuntu-latest
-    needs: define-matrix
-    strategy:
-      matrix:
-        color: ${{ fromJSON(needs.define-matrix.outputs.colors) }}
-
-    steps:
-      - name: Define Color
-        env:
-          color: ${{ matrix.color }}
-        run: |
-          echo "$color" > color
-      - name: Produce Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.color }}
-          path: color
-
-  consume-artifacts:
-    runs-on: ubuntu-latest
-    needs:
-    - define-matrix
-    - produce-artifacts
-    strategy:
-      matrix:
-        color: ${{ fromJSON(needs.define-matrix.outputs.colors) }}
-
-    steps:
-    - name: Retrieve Artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: ${{ matrix.color }}
-
-    - name: Report Color
+    - name: Convert YAML to JSON
+      id: convert-to-json
       run: |
-        cat color
+        json_output=$(yq eval -o=json ./github/data/regions.yaml)
+        echo "JSON output: $json_output"
+        echo "matrix=$json_output" >> $GITHUB_OUTPUT
+
+  run-instances:
+    needs: prepare-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        region_service: ${{ fromJSON(needs.prepare-matrix.outputs.dynamic-matrix) }}
+
+    steps:
+    - name: Display matrix values
+      run: |
+        echo "Running for service: ${{ matrix.region_service }}"
