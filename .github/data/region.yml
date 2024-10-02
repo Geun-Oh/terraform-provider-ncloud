@@ -1,5 +1,5 @@
 regions:
-  object_storage:
+  objectstorage:
     - KR
     - SGN
     - JPN
