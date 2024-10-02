@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: setup
     outputs:
-      matrix: ${{ steps.set-agents.outputs.matrix }}
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     strategy:
       matrix:
         agent: ${{fromJson(needs.setup.outputs.agent_list)}}
