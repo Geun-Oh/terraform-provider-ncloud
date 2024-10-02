@@ -55,7 +55,7 @@ jobs:
     needs: [setup-agents, setup-regions]
     runs-on: ubuntu-latest
     outputs:
-      combined_matrix: ${{ steps.combine.outputs.combined_matrix }}
+      combined_matrix: ${{ steps.exec.outputs.combined_matrix }}
     steps:
       - name: Combine Matrices
         id: combine
@@ -63,7 +63,7 @@ jobs:
           AGENTS='${{ needs.setup-agents.outputs.agent_list }}'
           COMBINED_MATRIX="{\"include\":[]}"
 
-      - name: Excute for loog
+      - name: Excute for loop
         id: exec
         run: |
           echo $AGENTS
