@@ -1,0 +1,57 @@
+name: Test Scheduler
+
+on:
+  push:
+    branches: 
+      - "main"
+      - "ci/test-automation"
+
+jobs:
+  setup:
+    name: Setup Agent List and Regions
+    runs-on: ubuntu-latest
+    outputs:
+      agent_list: ${{ steps.set-agents.outputs.agent_list }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - id: set-agents
+        run: |
+          AGENTS='["objectstorage", "server", "vpc", "redis", "ses", "nks", "nasvolume", "mysql", "mssql", "mongodb", "loadbalancer", "hadoop", "autoscaling"]'
+          echo "agent_list=$AGENTS" >> $GITHUB_OUTPUT
+
+      - id: set-regions
+        run: |
+          REGION_MAP=$(yq eval -o=json .regions .github/data/region.yml)
+          echo "region_map=$REGION_MAP" >> $GITHUB_OUTPUT
+
+  matrix-builder:
+    runs-on: ubuntu-latest
+    needs: setup
+    outputs:
+      matrix: ${{ steps.set-regions.outputs.matrix }}
+    strategy:
+      matrix:
+        agent: ${{fromJson(needs.setup.outputs.agent_list)}}
+    steps:
+      - uses: actions/checkout@v4
+      - id: set-matrix
+        run: |
+          AGENT_KEY=$(echo "${{ matrix.agent }}" | tr '-' '_')
+          REGIONS=$(yq eval '.regions.${AGENT_KEY}[]' .github/data/region.yml | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "matrix=${REGIONS}" >> $GITHUB_OUTPUT
+
+  runner:
+    name: Print region Info
+    needs: matrix-builder
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ["1.21"]
+        agent: ${{fromJson(needs.matrix-builder.outputs.matrix)}}
+
+    steps:
+      - name: Print
+        run: |
+          echo ${{ matrix.agent }}
