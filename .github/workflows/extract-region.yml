@@ -71,7 +71,8 @@ jobs:
           echo "combined_matrix=$COMBINED_MATRIX" >> $GITHUB_OUTPUT
 
       - name: Debug Output
-        run: echo "Combined Matrix: ${{ steps.combine.outputs.combined_matrix }}"
+        run: |
+          echo "Combined Matrix: ${{ steps.combine.outputs.combined_matrix }}"
 
   runner:
     name: Print Agent and Region Info
