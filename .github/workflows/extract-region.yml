@@ -61,12 +61,11 @@ jobs:
         id: combine
         run: |
           AGENTS='${{ needs.setup-agents.outputs.agent_list }}'
-          COMBINED_MATRIX="{\"include\":[]}"
 
       - name: Excute for loop
         id: exec
         run: |
-          echo $AGENTS
+          COMBINED_MATRIX="{\"include\":[]}"
           for agent in $(echo $AGENTS | jq -r '.[]'); do
             REGIONS=$(echo '${{ toJson(needs.setup-regions.outputs.region_matrix) }}' | jq -r ".[\"$agent\"][]")
             for region in $REGIONS; do
@@ -78,6 +77,7 @@ jobs:
       - name: Debug Output
         run: |
           echo "Combined Matrix: ${{ steps.combine.outputs.combined_matrix }}"
+          echo "Combined Matrix: ${{ steps.exec.outputs.combined_matrix }}"
 
   runner:
     name: Print Agent and Region Info
