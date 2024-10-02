@@ -7,11 +7,30 @@ on:
       - "ci/test-automation"
 
 jobs:
-  setup:
-    name: Setup Agent-Region Matrix
+  setup-agents:
+    name: Setup Agent List
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      agent_list: ${{ steps.set-agents.outputs.agent_list }}
+    steps:
+      - name: Set Agents
+        id: set-agents
+        run: |
+          AGENTS='["objectstorage", "server", "vpc", "redis", "ses", "nks", "nasvolume", "mysql", "mssql", "mongodb", "loadbalancer", "hadoop", "autoscaling"]'
+          echo "agent_list=$AGENTS" >> $GITHUB_OUTPUT
+      
+      - name: Debug Output
+        run: echo "Agents: ${{ steps.set-agents.outputs.agent_list }}"
+
+  setup-regions:
+    name: Setup Regions for Agents
+    needs: setup-agents
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        agent: ${{ fromJson(needs.setup-agents.outputs.agent_list) }}
+    outputs:
+      region_matrix: ${{ steps.set-regions.outputs.region_matrix }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,32 +40,50 @@ jobs:
           sudo wget -qO /usr/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod a+x /usr/bin/yq
 
-      - id: set-matrix
+      - name: Set Regions
+        id: set-regions
         run: |
-          AGENTS='["objectstorage", "server", "vpc", "redis", "ses", "nks", "nasvolume", "mysql", "mssql", "mongodb", "loadbalancer", "hadoop", "autoscaling"]'
-          MATRIX="{\"include\":[]}"
-          for agent in $(echo $AGENTS | jq -r '.[]'); do
-            AGENT_KEY=$(echo "$agent" | tr '-' '_')
-            REGIONS=$(yq eval ".regions.$AGENT_KEY[]" .github/data/region.yml | jq -R -s 'split("\n") | map(select(length > 0))')
-            for region in $(echo $REGIONS | jq -r '.[]'); do
-              MATRIX=$(echo $MATRIX | jq --arg agent "$agent" --arg region "$region" '.include += [{"agent": $agent, "region": $region}]')
-            done
-          done
-          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+          AGENT_KEY=$(echo "${{ matrix.agent }}" | tr '-' '_')
+          REGIONS=$(yq eval ".regions.$AGENT_KEY[]" .github/data/region.yml | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "region_matrix={\"${{ matrix.agent }}\": $REGIONS}" >> $GITHUB_OUTPUT
 
       - name: Debug Output
+        run: echo "Regions for ${{ matrix.agent }}: ${{ steps.set-regions.outputs.region_matrix }}"
+
+  combine-matrix:
+    name: Combine Agent-Region Matrix
+    needs: [setup-agents, setup-regions]
+    runs-on: ubuntu-latest
+    outputs:
+      combined_matrix: ${{ steps.combine.outputs.combined_matrix }}
+    steps:
+      - name: Combine Matrices
+        id: combine
         run: |
-          echo "Matrix: ${{ steps.set-matrix.outputs.matrix }}"
+          AGENTS='${{ needs.setup-agents.outputs.agent_list }}'
+          COMBINED_MATRIX="{\"include\":[]}"
+          for agent in $(echo $AGENTS | jq -r '.[]'); do
+            REGIONS=$(echo '${{ toJson(needs.setup-regions.outputs.region_matrix) }}' | jq -r ".[\"$agent\"][]")
+            for region in $REGIONS; do
+              COMBINED_MATRIX=$(echo $COMBINED_MATRIX | jq --arg agent "$agent" --arg region "$region" '.include += [{"agent": $agent, "region": $region}]')
+            done
+          done
+          echo "combined_matrix=$COMBINED_MATRIX" >> $GITHUB_OUTPUT
+
+      - name: Debug Output
+        run: echo "Combined Matrix: ${{ steps.combine.outputs.combined_matrix }}"
 
   runner:
     name: Print Agent and Region Info
-    needs: setup
+    needs: combine-matrix
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: ${{fromJson(needs.setup.outputs.matrix)}}
+      matrix: ${{fromJson(needs.combine-matrix.outputs.combined_matrix)}}
     steps:
       - name: Print Agent and Region
         run: |
           echo "Agent: ${{ matrix.agent }}"
           echo "Region: ${{ matrix.region }}"
+
+      # 여기에 실제 테스트나 다른 작업을 추가할 수 있습니다.
