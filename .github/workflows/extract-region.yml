@@ -17,6 +17,7 @@ jobs:
         id: set-agents
         run: |
           AGENTS='["objectstorage", "server", "vpc", "redis", "ses", "nks", "nasvolume", "mysql", "mssql", "mongodb", "loadbalancer", "hadoop", "autoscaling"]'
+          echo $AGENTS | jq .
           echo "agent_list=$AGENTS" >> $GITHUB_OUTPUT
       
       # - name: Debug Output
