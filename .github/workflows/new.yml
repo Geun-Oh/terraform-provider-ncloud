@@ -36,11 +36,12 @@ jobs:
           echo "Running for service: ${{ matrix.region_service.service }}"
           echo "Running in region: ${{ matrix.region_service.region }}"
 
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Execute Testing Workflow
-        uses: ./.github/workflows/execute.yml
-        with:
-          agent: ${{ matrix.region_service.agent }}
-          region: ${{ matrix.region_service.region }}
+  call-workflow:
+    needs: prepare-matrix
+    strategy:
+      matrix:
+        region_service: ${{ fromJSON(needs.prepare-matrix.outputs.dynamic-matrix) }}
+    uses: ./.github/workflows/execute.yml
+    with:
+      agent: ${{ matrix.region_service.service }}
+      region: ${{ matrix.region_service.region }}
