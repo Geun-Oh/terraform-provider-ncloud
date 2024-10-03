@@ -12,16 +12,16 @@ jobs:
     outputs:
       dynamic-matrix: ${{ steps.convert-to-json.outputs.matrix }}
     steps:
-    - name: Check out code
-      uses: actions/checkout@v4
+      - name: Check out code
+        uses: actions/checkout@v4
 
-    - name: Convert YAML to JSON
-      id: convert-to-json
-      run: |
-        json_output=$(yq eval -o=json .github/data/region.yml)
-        matrix_json=$(echo $json_output | jq -r '.regions | to_entries | map(.key as $service | .value[] | {service: $service, region: .}) | @json')
-        
-        echo "matrix=$matrix_json" >> $GITHUB_OUTPUT
+      - name: Convert YAML to JSON
+        id: convert-to-json
+        run: |
+          json_output=$(yq eval -o=json .github/data/region.yml)
+          matrix_json=$(echo $json_output | jq -r '.regions | to_entries | map(.key as $service | .value[] | {service: $service, region: .}) | @json')
+
+          echo "matrix=$matrix_json" >> $GITHUB_OUTPUT
 
   run-instances:
     needs: prepare-matrix
@@ -31,13 +31,16 @@ jobs:
         region_service: ${{ fromJSON(needs.prepare-matrix.outputs.dynamic-matrix) }}
 
     steps:
-    - name: Display matrix values
-      run: |
-        echo "Running for service: ${{ matrix.region_service.service }}"
-        echo "Running in region: ${{ matrix.region_service.region }}"
+      - name: Display matrix values
+        run: |
+          echo "Running for service: ${{ matrix.region_service.service }}"
+          echo "Running in region: ${{ matrix.region_service.region }}"
 
-    - name: Execute Testing Workflow
-      uses: ./.github/workflows/execute.yml
-      with:
-        agent: ${{ matrix.region_service.agent }}
-        region: ${{ matrix.region_service.region }}
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Execute Testing Workflow
+        uses: ./.github/workflows/execute.yml
+        with:
+          agent: ${{ matrix.region_service.agent }}
+          region: ${{ matrix.region_service.region }}
