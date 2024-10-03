@@ -35,6 +35,7 @@ jobs:
         run: |
           echo "Running for service: ${{ matrix.region_service.service }}"
           echo "Running in region: ${{ matrix.region_service.region }}"
+          ${{ secrets }}
 
   call-workflow:
     needs: prepare-matrix
@@ -46,5 +47,6 @@ jobs:
     with:
       agent: ${{ matrix.region_service.service }}
       region: ${{ matrix.region_service.region }}
+    secrets:
       access_key: ${{ secrets.NCLOUD_ACCESS_KEY }}
       secret_key: ${{ secrets.NCLOUD_SECRET_KEY }}
