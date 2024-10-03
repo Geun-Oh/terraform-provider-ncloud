@@ -35,3 +35,9 @@ jobs:
       run: |
         echo "Running for service: ${{ matrix.region_service.service }}"
         echo "Running in region: ${{ matrix.region_service.region }}"
+
+    - name: Execute Testing Workflow
+      uses: ./.github/workflows/execute.yml
+      with:
+        agent: ${{ matrix.region_service.agent }}
+        region: ${{ matrix.region_service.region }}
