@@ -11,6 +11,14 @@ on:
         description: "Input region"
         required: true
         type: string
+      access_key:
+        description: "Input access key"
+        required: true
+        type: string
+      secret_key:
+        description: "Input secret key"
+        required: true
+        type: string
 
 jobs:
   test:
@@ -52,8 +60,8 @@ jobs:
         run: |
           cat << EOF > locals.tf
           locals {
-            access_key  = "${{ secrets.NCLOUD_ACCESS_KEY }}"
-            secret_key  = "${{ secrets.NCLOUD_SECRET_KEY }}" 
+            access_key  = "${{ inputs.access_key }}"
+            secret_key  = "${{ inputs.secret_key }}" 
             region = "${{ inputs.region }}"
             support_vpc = ${{ inputs.region == 'KR' || inputs.region == 'JPN' || inputs.region == 'SGN' }} 
           }
