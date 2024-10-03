@@ -1,0 +1,88 @@
+name: Execute Terraform Testing
+
+on:
+  workflow_call:
+    inputs:
+      agent:
+        description: "Input agent"
+        required: true
+        type: string
+      region:
+        description: "Input region"
+        required: true
+        type: string
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout branch
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.21" # Specify a Go version
+          cache: false
+
+      - name: Check Go Version
+        run: go version
+
+      - name: Check GOBIN
+        id: go-binary
+        run: echo "GOBIN=$HOME/go/bin" >> $GITHUB_OUTPUT
+
+      - name: Run go Install
+        run: go install .
+
+      - name: Write .terraformrc
+        run: |
+          cat << EOF > $HOME/.terraformrc
+          provider_installation {
+            dev_overrides {
+                "NaverCloudPlatform/ncloud" = "${{ steps.go-binary.outputs.GOBIN }}"
+            }
+            direct {}
+          }
+          EOF
+
+      - name: Write locals.tf
+        run: |
+          cat << EOF > locals.tf
+          locals {
+            access_key  = "${{ secrets.NCLOUD_ACCESS_KEY }}"
+            secret_key  = "${{ secrets.NCLOUD_SECRET_KEY }}" 
+            region = "${{ inputs.region }}"
+            support_vpc = ${{ inputs.region == 'KR' || inputs.region == 'JPN' || inputs.region == 'SGN' }} 
+          }
+          EOF
+
+      - name: Write provider.tf
+        run: ln -s .github/data/samples/provider.tf provider.tf
+
+      - name: Write main.tf
+        run: ln -s .github/data/samples/${{ inputs.agent }}.tf main.tf
+
+      - name: Write test.md
+        run: echo "hello world!" > test.md
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.4"
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan
+
+      - name: Terraform Apply
+        id: apply_step
+        run: terraform apply -auto-approve
+
+      - name: Terraform Destroy
+        if: steps.apply_step.outcome == 'success'
+        run: terraform destroy -auto-approve
