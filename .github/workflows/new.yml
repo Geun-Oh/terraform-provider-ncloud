@@ -39,6 +39,7 @@ jobs:
   call-workflow:
     needs: prepare-matrix
     strategy:
+      fail-fast: false
       matrix:
         region_service: ${{ fromJSON(needs.prepare-matrix.outputs.dynamic-matrix) }}
     uses: ./.github/workflows/execute.yml
