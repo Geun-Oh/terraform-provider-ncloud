@@ -72,3 +72,4 @@ jobs:
                 cat "${{ matrix.agent }}"-report.json
 
                 aws --endpoint-url=https://kr.object.ncloudstorage.com s3 cp "${{ matrix.agent }}"-report.json s3://test-dashboard/data/"${{ matrix.agent }}"-report.json
+                aws --endpoint-url=https://kr.object.ncloudstorage.com s3api put-object-acl --bucket test-dashboard --key data/"${{ matrix.agent }}"-report.json --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
