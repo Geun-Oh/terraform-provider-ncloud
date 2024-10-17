@@ -3,10 +3,7 @@ package globaledge
 import (
 	"context"
 
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/conn"
 	globaledge "github.com/terraform-providers/terraform-provider-ncloud/internal/service/globaledge/sdk"
 )
@@ -36,7 +33,12 @@ func (g *globaledgeResource) Create(ctx context.Context, req resource.CreateRequ
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 
 	reqParams := globaledge.EdgeConfig{
-		AccessControl: &globaledge.AccessControl{},
+		AccessControl: &globaledge.AccessControl{
+			GeoPolicies:     []string{"1", "2", "3"},
+			IpPolicies:      []string{"1", "2", "3"},
+			RefererPolicies: []string{"1", "2", "3"},
+			Type_:           "test",
+		},
 	}
 
 	_, httpRes, err := service.CdnEdgePost(ctx, reqParams)
@@ -48,7 +50,8 @@ func (g *globaledgeResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	plan.refreshFromOutput(ctx, &plan)
+	convertedParams := Converter(ctx, &reqParams)
+	resp.Diagnostics.Append(req.Plan.Set(ctx, &convertedParams)...)
 }
 
 func (g *globaledgeResource) Delete(context.Context, resource.DeleteRequest, *resource.DeleteResponse) {
@@ -73,89 +76,4 @@ func (g *globaledgeResource) Schema(ctx context.Context, _ resource.SchemaReques
 
 func (g *globaledgeResource) Update(context.Context, resource.UpdateRequest, *resource.UpdateResponse) {
 	panic("unimplemented")
-}
-
-func (r *GlobalEdgeModel) refreshFromOutput(ctx context.Context, output *GlobalEdgeModel) {
-	r = output
-}
-
-func convertSDK2Terraform(ctx context.Context, input *globaledge.EdgeConfig) GlobalEdgeModel {
-	var target GlobalEdgeModel
-	var c CachingConfigType
-
-	geoPolicesValue, diags := types.ListValue(types.ListType{}, convertStringSliceToAttrValueSlice(input.AccessControl.GeoPolicies))
-	if diags.HasError() {
-		return GlobalEdgeModel{}
-	}
-
-	ipPoliciesValue, diags := types.ListValue(types.ListType{}, convertStringSliceToAttrValueSlice(input.AccessControl.IpPolicies))
-	if diags.HasError() {
-		return GlobalEdgeModel{}
-	}
-
-	refererPolicies, diags := types.ListValue(types.ListType{}, convertStringSliceToAttrValueSlice(input.AccessControl.RefererPolicies))
-	if diags.HasError() {
-		return GlobalEdgeModel{}
-	}
-
-	accessControlType := types.StringValue(input.AccessControl.Type_)
-
-	accessControlMap := &AccessControlValue{
-		GeoPolicies:       geoPolicesValue,
-		IpPolicies:        ipPoliciesValue,
-		RefererPolicies:   refererPolicies,
-		AccessControlType: accessControlType,
-	}
-
-	// cdnCachingConfigValue, diags := c.ValueFromObject(ctx, types.ObjectValue(map[string]attr.Type{
-	// 	"bypass_query_string": types.ObjectType{AttrTypes: map[string]attr.Type{
-	// 		"enabled": types.BoolType,
-	// 		"query_strings": types.ListType{
-	// 			ElemType: types.StringType,
-	// 		},
-	// 	}},
-	// 	"cache_key_hostname": types.StringType,
-	// 	"cache_key_ignore_query_string": types.ObjectType{AttrTypes: map[string]attr.Type{
-	// 		"query_strings": types.ListType{
-	// 			ElemType: types.StringType,
-	// 		},
-	// 		"type": types.StringType,
-	// 	}},
-	// }, map[string]attr.Value{
-	// 	"bypass_query_string": convertStringSliceToAttrValueSlice(input.CachingConfig.BypassQueryString),
-	// 	"cache_key_host_name": types.StringType,
-	// }))
-
-	target.AccessControl = *accessControlMap
-
-	if diags.HasError() {
-		return GlobalEdgeModel{}
-	}
-
-	return target
-}
-
-func convertListValueToStringSlice(listValue basetypes.ListValue) []string {
-	arr := make([]string, len(listValue.Elements()))
-	for i, v := range listValue.Elements() {
-		arr[i] = v.String()
-	}
-
-	return arr
-}
-
-func convertAttrValueToBool(val attr.Value) bool {
-	if val.String() == "true" {
-		return true
-	}
-	return false
-}
-
-func convertStringSliceToAttrValueSlice(strings []string) []attr.Value {
-	attrValues := make([]attr.Value, len(strings))
-	for i, s := range strings {
-		attrValues[i] = types.StringValue(s)
-	}
-
-	return attrValues
 }
