@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	globaledge "github.com/terraform-providers/terraform-provider-ncloud/internal/service/globaledge/sdk"
+	utils "github.com/terraform-providers/terraform-provider-ncloud/internal/service/globaledge/util"
 )
 
 func TestConvert(t *testing.T) {
@@ -21,4 +22,10 @@ func TestConvert(t *testing.T) {
 	vv := Converter(context.Background(), reqParams)
 
 	fmt.Println(PrettyPrint(vv))
+}
+
+func TestGen(t *testing.T) {
+	sdkStruct := &globaledge.EdgeConfig{}
+	tfStruct := &GlobalEdgeModel{}
+	utils.GenerateConverter_core(sdkStruct, tfStruct)
 }
