@@ -18,16 +18,14 @@ func GenerateConverter_core(sdkStruct, tfStruct interface{}) {
 		if t, ok := tfElem.FieldByName(sdkElem.Field(i).Name); ok {
 			var innerTemplate string
 			if v.Kind() == reflect.Struct {
-				var structInnerTemplate string
 				for j := 0; j < v.NumField(); j++ {
-					structInnerTemplate = structInnerTemplate + recursiveTypeChecker(v.Field(j).Type, "input."+t.Name+v.Name(), strings.Split(v.Field(j).Tag.Get("json"), ",")[0])
+					structInnerTemplate := recursiveTypeChecker(v.Field(j).Type, "input."+t.Name+v.Name(), strings.Split(v.Field(j).Tag.Get("json"), ",")[0])
 					innerTemplate = innerTemplate + fmt.Sprintf(`
 					%[1]s: diagOff(types.ObjectValueFrom, ctx, types.ObjectType{AttrTypes: map[string]attr.Type{
 						%[3]s			
 					}}.AttributeTypes(), %[2]s.%[1]s),`, v.Elem().Field(j).Name, "input."+t.Name+v.Elem().Name(), structInnerTemplate) + "\n"
 				}
 			} else if v.Kind() == reflect.Ptr {
-				var structInnerTemplate string
 				for j := 0; j < v.Elem().NumField(); j++ {
 					switch v.Elem().Field(j).Type.String() {
 					case "string":
@@ -47,7 +45,7 @@ func GenerateConverter_core(sdkStruct, tfStruct interface{}) {
 					case "[]int64":
 						innerTemplate = innerTemplate + fmt.Sprintf(`%[1]s: diagOff(types.ListValueFrom, ctx, types.ListType{ElemType: types.Int64Type}.ElementType(), %[2]s),`, v.Elem().Field(j).Name, "input."+t.Name+"."+v.Elem().Field(j).Name) + "\n"
 					default:
-						structInnerTemplate = structInnerTemplate + recursiveTypeChecker(v.Elem().Field(j).Type, "input."+t.Name+v.Name(), strings.Split(v.Elem().Field(j).Tag.Get("json"), ",")[0])
+						structInnerTemplate := recursiveTypeChecker(v.Elem().Field(j).Type, "input."+t.Name+v.Name(), strings.Split(v.Elem().Field(j).Tag.Get("json"), ",")[0])
 						innerTemplate = innerTemplate + fmt.Sprintf(`
 						%[1]s: diagOff(types.ObjectValueFrom, ctx, types.ObjectType{AttrTypes: map[string]attr.Type{
 							%[3]s			
