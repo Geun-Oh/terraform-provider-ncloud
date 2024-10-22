@@ -17,20 +17,15 @@ jobs:
         strategy:
             matrix:
                 go-version: ["1.21"]
-                agent:
-                   - "objectstorage"
-                   - "server"
-                   - "vpc"
-                   - "redis"
-                   - "ses"
-                   - "nks"
-                   - "nasvolume"
-                   - "mysql"
-                   - "mssql"
-                   - "mongodb"
-                   - "loadbalancer"
-                   - "hadoop"
-                   - "autoscaling"
+                agent: ["obs_vpc", "mongodb_loadbalancer", "redis_ses", "server", "nks", "mysql", "hadoop", "autoscaling", "mssql", "nasvolume"]
+                include:
+                    - agent: "obs_vpc"
+                      tests: "objectstorage vpc"
+                    - agent: "redis_ses"
+                      tests: "redis ses"
+                    - agent: "mongodb_loadbalancer"
+                      tests: "mongodb loadbalancer"
+                      
                       
         steps:
           - name: checkout branch
@@ -61,15 +56,18 @@ jobs:
           - name: Run tests on agent ${{ matrix.agent }}
             run: |
                 echo "Running tests on agent ${{ matrix.agent }}"
-                export TF_ACC=1
-                export NCLOUD_REGION=${{ secrets.NCLOUD_REGION }}
-                export NCLOUD_ACCESS_KEY=${{ secrets.NCLOUD_ACCESS_KEY }}
-                export NCLOUD_SECRET_KEY=${{ secrets.NCLOUD_SECRET_KEY }}
-                echo $PWD
-                echo $ls
-                echo "${{ matrix.agent }}"
-                go test -timeout 2h -v -json ./internal/service/"${{ matrix.agent }}" | go-ctrf-json-reporter -output "${{ matrix.agent }}"-report.json
-                cat "${{ matrix.agent }}"-report.json
+                for test in ${{ matrix.tests }} do
+                    export TF_ACC=1
+                    export NCLOUD_REGION=${{ secrets.NCLOUD_REGION }}
+                    export NCLOUD_ACCESS_KEY=${{ secrets.NCLOUD_ACCESS_KEY }}
+                    export NCLOUD_SECRET_KEY=${{ secrets.NCLOUD_SECRET_KEY }}
+                    echo $PWD
+                    echo $ls
+                    echo "$test"
+                    go test -timeout 2h -v -json ./internal/service/"$test" | go-ctrf-json-reporter -output "$test"-report.json
+                    cat "$test"-report.json
+    
+                    aws --endpoint-url=https://kr.object.ncloudstorage.com s3 cp "$test"-report.json s3://test-dashboard/data/"$test"-report.json
+                    aws --endpoint-url=https://kr.object.ncloudstorage.com s3api put-object-acl --bucket test-dashboard --key data/"$test"-report.json --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
 
-                aws --endpoint-url=https://kr.object.ncloudstorage.com s3 cp "${{ matrix.agent }}"-report.json s3://test-dashboard/data/"${{ matrix.agent }}"-report.json
-                aws --endpoint-url=https://kr.object.ncloudstorage.com s3api put-object-acl --bucket test-dashboard --key data/"${{ matrix.agent }}"-report.json --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
+                done
