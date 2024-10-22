@@ -25,6 +25,20 @@ jobs:
                       tests: "redis ses"
                     - agent: "mongodb_loadbalancer"
                       tests: "mongodb loadbalancer"
+                    - agent: "server"
+                      tests: "server"
+                    - agent: "nks"
+                      tests: "nks"
+                    - agent: "mysql"
+                      tests: "mysql"
+                    - agent: "hadoop"
+                      tests: "hadoop"
+                    - agent: "autoscaling"
+                      tests: "autoscaling"
+                    - agent: "mssql"
+                      tests: "mssql"
+                    - agent: "nasvolume"
+                      tests: "nasvolume"
                       
                       
         steps:
@@ -66,8 +80,8 @@ jobs:
                     echo "$test"
                     go test -timeout 2h -v -json ./internal/service/"$test" | go-ctrf-json-reporter -output "$test"-report.json
                     cat "$test"-report.json
-    
+
                     aws --endpoint-url=https://kr.object.ncloudstorage.com s3 cp "$test"-report.json s3://test-dashboard/data/"$test"-report.json
                     aws --endpoint-url=https://kr.object.ncloudstorage.com s3api put-object-acl --bucket test-dashboard --key data/"$test"-report.json --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
-
+                    
                 done
