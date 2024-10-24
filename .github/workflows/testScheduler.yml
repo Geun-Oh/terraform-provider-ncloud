@@ -1,14 +1,8 @@
-name: Test Scheduler
-
-# on:
-#     schedule:
-#         - cron:  "0 0 * * *"
+name: Regular regression testing
 
 on:
-  push:
-    branches:
-      - "main"
-      - "ci/test-automation"
+  schedule:
+    - cron: "0 0 * * *"
 
 jobs:
   test:
@@ -25,7 +19,7 @@ jobs:
             "server",
             "nks_mysql",
             "hadoop_mssql",
-            "nasvolume",
+            "nasvolume_mongodb",
           ]
         include:
           - agent: "obs_vpc"
@@ -42,8 +36,8 @@ jobs:
             tests: "hadoop mssql"
           #- agent: "autoscaling"
           #  tests: "autoscaling"
-          - agent: "nasvolume"
-            tests: "nasvolume"
+          - agent: "nasvolume_mongodb"
+            tests: "nasvolume mongodb"
 
     steps:
       - name: checkout branch
@@ -88,7 +82,7 @@ jobs:
               go test -timeout 2h -v -json ./internal/service/"$test" | go-ctrf-json-reporter -output "$test"-report.json
               cat "$test"-report.json
 
-              aws --endpoint-url=https://kr.object.ncloudstorage.com s3 cp "$test"-report.json s3://ncloud-regression-testing-dashboard/data/"$DATE"/"$test"-report.json
-              aws --endpoint-url=https://kr.object.ncloudstorage.com s3api put-object-acl --bucket ncloud-regression-testing-dashboard --key data/"$DATE"/"$test"-report.json --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
+              aws --endpoint-url=https://kr.object.ncloudstorage.com s3 cp "$test"-report.json s3://${{ secrets.NCLOUD_BUCKET_NAME }}/data/"$DATE"/"$test"-report.json
+              aws --endpoint-url=https://kr.object.ncloudstorage.com s3api put-object-acl --bucket ${{ secrets.NCLOUD_BUCKET_NAME }} --key data/"$DATE"/"$test"-report.json --grant-read uri=http://acs.amazonaws.com/groups/global/AllUsers
               
           done
