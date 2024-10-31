@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: "0 22 * * *"
 
+env:
+  TF_ACC: 1
+  NCLOUD_REGION: ${{ secrets.NCLOUD_REGION }}
+  NCLOUD_ACCESS_KEY: ${{ secrets.NCLOUD_ACCESS_KEY }}
+  NCLOUD_SECRET_KEY: ${{ secrets.NCLOUD_SECRET_KEY }}
+
 jobs:
   test:
     name: Test
@@ -75,13 +81,6 @@ jobs:
         run: |
           echo "Running tests on agent ${{ matrix.agent }}"
           for test in ${{ matrix.tests }}; do
-              export TF_ACC=1
-              export NCLOUD_REGION=${{ secrets.NCLOUD_REGION }}
-              export NCLOUD_ACCESS_KEY=${{ secrets.NCLOUD_ACCESS_KEY }}
-              export NCLOUD_SECRET_KEY=${{ secrets.NCLOUD_SECRET_KEY }}
-              echo $PWD
-              echo $ls
-              echo "$test"
               go test -timeout 4h -v -json ./internal/service/"$test" | go-ctrf-json-reporter -output "$test"-report.json
               cat "$test"-report.json
 
