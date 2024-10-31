@@ -1,8 +1,7 @@
 name: Regular regression testing
 
 on:
-  schedule:
-    - cron: "0 22 * * *"
+  workflow_dispatch:
 
 env:
   TF_ACC: 1
