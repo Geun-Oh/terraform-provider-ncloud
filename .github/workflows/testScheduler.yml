@@ -1,7 +1,9 @@
 name: Regular regression testing
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - "test/regression-test"
 
 env:
   TF_ACC: 1
