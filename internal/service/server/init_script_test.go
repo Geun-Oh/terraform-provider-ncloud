@@ -106,12 +106,16 @@ func testAccCheckInitScriptDestroy(s *terraform.State) error {
 
 		instance, err := server.GetInitScript(context.Background(), config, rs.Primary.ID)
 
+		if instance == nil {
+			return nil
+		}
+
 		if err != nil {
 			return err
 		}
 
 		if instance != nil {
-			return errors.New("init script still exists")
+		return errors.New("init script still exists")
 		}
 	}
 
