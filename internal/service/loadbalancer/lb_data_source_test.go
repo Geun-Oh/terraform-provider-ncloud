@@ -11,7 +11,8 @@ import (
 )
 
 func TestAccDataSourceNcloudLb_basic(t *testing.T) {
-	name := fmt.Sprintf("terraform-testacc-lb-%s", acctest.RandString(5))
+	lbName := fmt.Sprintf("tf-lb-%s", acctest.RandString(5))
+	tgName := fmt.Sprintf("tf-tg-%s", acctest.RandString(5))
 	dataName := "data.ncloud_lb.test"
 	resourceName := "ncloud_lb.test"
 	resource.ParallelTest(t, resource.TestCase{
@@ -19,7 +20,7 @@ func TestAccDataSourceNcloudLb_basic(t *testing.T) {
 		ProtoV6ProviderFactories: ProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceNcloudLbConfig(name),
+				Config: testAccDataSourceNcloudLbConfig(tgName, lbName),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					TestAccCheckDataSourceID(dataName),
 					resource.TestCheckResourceAttrPair(dataName, "name", resourceName, "name"),
@@ -36,8 +37,8 @@ func TestAccDataSourceNcloudLb_basic(t *testing.T) {
 	})
 }
 
-func testAccDataSourceNcloudLbConfig(name string) string {
-	return testAccResourceNcloudLbConfig(name) + `
+func testAccDataSourceNcloudLbConfig(tgName, lbName string) string {
+	return testAccResourceNcloudLbConfig(tgName, lbName) + `
 data "ncloud_lb" "test" {
 	id = ncloud_lb.test.load_balancer_no
 }

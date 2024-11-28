@@ -11,7 +11,8 @@ import (
 )
 
 func TestAccDataSourceNcloudLbListener_basic(t *testing.T) {
-	lbName := fmt.Sprintf("terraform-testacc-lb-%s", acctest.RandString(5))
+	lbName := fmt.Sprintf("tf-lb-%s", acctest.RandString(5))
+	tgName := fmt.Sprintf("tf-tg-%s", acctest.RandString(5))
 	dataName := "data.ncloud_lb_listener.test"
 	resourceName := "ncloud_lb_listener.test"
 	resource.ParallelTest(t, resource.TestCase{
@@ -19,7 +20,7 @@ func TestAccDataSourceNcloudLbListener_basic(t *testing.T) {
 		ProtoV6ProviderFactories: ProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceNcloudLbListenerConfig(lbName),
+				Config: testAccDataSourceNcloudLbListenerConfig(tgName, lbName),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					TestAccCheckDataSourceID(dataName),
 					resource.TestCheckResourceAttrPair(dataName, "port", resourceName, "port"),
@@ -32,8 +33,8 @@ func TestAccDataSourceNcloudLbListener_basic(t *testing.T) {
 	})
 }
 
-func testAccDataSourceNcloudLbListenerConfig(name string) string {
-	return testAccResourceNcloudLbListenerConfig(name) + `
+func testAccDataSourceNcloudLbListenerConfig(tgName, lbName string) string {
+	return testAccResourceNcloudLbListenerConfig(tgName, lbName) + `
 data "ncloud_lb_listener" "test" {
 	id = ncloud_lb_listener.test.listener_no
 	load_balancer_no = ncloud_lb.test.load_balancer_no

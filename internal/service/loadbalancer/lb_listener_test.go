@@ -16,7 +16,8 @@ import (
 
 func TestAccResourceNcloudLbListener_vpc_basic(t *testing.T) {
 	var listener loadbalancer.LoadBalancerListener
-	lbName := fmt.Sprintf("terraform-testacc-lb-%s", acctest.RandString(5))
+	lbName := fmt.Sprintf("tf-lb-%s", acctest.RandString(5))
+	tgName := fmt.Sprintf("tf-tg-%s", acctest.RandString(5))
 	resourceName := "ncloud_lb_listener.test"
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { TestAccPreCheck(t) },
@@ -26,7 +27,7 @@ func TestAccResourceNcloudLbListener_vpc_basic(t *testing.T) {
 		},
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceNcloudLbListenerConfig(lbName),
+				Config: testAccResourceNcloudLbListenerConfig(tgName, lbName),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckLbListenerExists(resourceName, &listener, GetTestProvider(true)),
 					resource.TestCheckResourceAttr(resourceName, "port", "8080"),
@@ -86,8 +87,8 @@ func testAccCheckLbListenerDestroy(s *terraform.State, provider *schema.Provider
 	return nil
 }
 
-func testAccResourceNcloudLbListenerConfig(lbName string) string {
-	return testAccResourceNcloudLbConfig(lbName) + `
+func testAccResourceNcloudLbListenerConfig(tgName, lbName string) string {
+	return testAccResourceNcloudLbConfig(tgName, lbName) + `
 resource "ncloud_lb_listener" "test" {
     load_balancer_no = ncloud_lb.test.load_balancer_no
     protocol = "HTTP"
