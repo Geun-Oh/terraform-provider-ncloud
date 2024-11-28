@@ -17,7 +17,8 @@ import (
 
 func TestAccResourceNcloudLb_vpc_basic(t *testing.T) {
 	var lb loadbalancer.LoadBalancerInstance
-	lbName := fmt.Sprintf("terraform-testacc-lb-%s", acctest.RandString(5))
+	lbName := fmt.Sprintf("tf-lb-%s", acctest.RandString(5))
+	tgName := fmt.Sprintf("tf-tg-%s", acctest.RandString(5))
 	resourceName := "ncloud_lb.test"
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:                 func() { TestAccPreCheck(t) },
@@ -27,7 +28,7 @@ func TestAccResourceNcloudLb_vpc_basic(t *testing.T) {
 		},
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceNcloudLbConfig(lbName),
+				Config: testAccResourceNcloudLbConfig(tgName, lbName),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckLbExists(resourceName, &lb, GetTestProvider(true)),
 					resource.TestCheckResourceAttr(resourceName, "name", lbName),
@@ -96,7 +97,7 @@ func testAccCheckLbDestroy(s *terraform.State, provider *schema.Provider) error 
 	return nil
 }
 
-func testAccResourceNcloudLbConfig(name string) string {
+func testAccResourceNcloudLbConfig(tgName, lbName string) string {
 	return fmt.Sprintf(`
 resource "ncloud_vpc" "test" {
 	ipv4_cidr_block    = "10.0.0.0/16"
@@ -116,7 +117,7 @@ resource "ncloud_lb_target_group" "test" {
   protocol = "HTTP"
   target_type = "VSVR"
   port        = 8080
-  name        = "terraform-testacc-tg"
+  name        = "%[1]s"
   description = "for test"
 
   health_check {
@@ -134,7 +135,7 @@ resource "ncloud_lb_target_group" "test" {
 }
 
 resource "ncloud_lb" "test" {
-    name = "%s"
+    name = "%[2]s"
     description = "tf test description"
     network_type = "PRIVATE"
     idle_timeout = 30
@@ -142,5 +143,5 @@ resource "ncloud_lb" "test" {
     throughput_type = "SMALL"
     subnet_no_list = [ ncloud_subnet.test.subnet_no ]
 }
-`, name)
+`, tgName, lbName)
 }
