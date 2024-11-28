@@ -114,9 +114,7 @@ func testAccCheckInitScriptDestroy(s *terraform.State) error {
 			return err
 		}
 
-		if instance != nil {
 		return errors.New("init script still exists")
-		}
 	}
 
 	return nil

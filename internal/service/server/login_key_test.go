@@ -114,9 +114,8 @@ func testAccCheckLoginKeyDestroyWithProvider(s *terraform.State, provider *schem
 		if err != nil {
 			return err
 		}
-		if loginKey != nil && *loginKey.Fingerprint != "" {
-			return fmt.Errorf("found not deleted login key: %s", rs.Primary.ID)
-		}
+
+		return fmt.Errorf("found not deleted login key: %s", rs.Primary.ID)
 	}
 
 	return nil
