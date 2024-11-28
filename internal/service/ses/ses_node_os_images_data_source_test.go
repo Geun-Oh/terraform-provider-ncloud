@@ -36,7 +36,7 @@ func TestAccDataSourceNcloudSESNodeOsImagesFilter(t *testing.T) {
 				Config: testAccDataSourceNcloudSESNodeOsImagestWithFilterConfig(),
 				Check: resource.ComposeTestCheckFunc(
 					TestAccCheckDataSourceID(dataName),
-					resource.TestCheckResourceAttr(dataName, "versions.0.id", "SW.VELST.OS.LNX64.CNTOS.0708.B050"),
+					resource.TestCheckResourceAttr(dataName, "filter.0.values.0", "SW.VELST.OS.LNX64.CNTOS.0708.B050"),
 				),
 			},
 		},
