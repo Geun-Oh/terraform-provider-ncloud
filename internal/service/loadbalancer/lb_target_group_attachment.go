@@ -187,11 +187,14 @@ func GetVpcLoadBalancerTargetGroupAttachment(config *conn.ProviderConfig, target
 		TargetGroupNo: ncloud.String(targetGroupNo),
 	}
 	resp, err := config.Client.Vloadbalancer.V2Api.GetTargetList(reqParams)
+	if len(resp.TargetList) < 1 {
+		return nil, nil
+	}
 	if err != nil {
 		return nil, err
 	}
-	matchTargetNoList := getMatchTargetNoListFromResponse(resp.TargetList, targetNoList)
 
+	matchTargetNoList := getMatchTargetNoListFromResponse(resp.TargetList, targetNoList)
 	if len(matchTargetNoList) < 1 {
 		return nil, nil
 	}
