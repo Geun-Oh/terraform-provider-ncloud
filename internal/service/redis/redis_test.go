@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
-	"strings"
 	"testing"
 
 	"github.com/NaverCloudPlatform/ncloud-sdk-go-v2/services/vredis"
@@ -16,6 +15,7 @@ import (
 	. "github.com/terraform-providers/terraform-provider-ncloud/internal/acctest"
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/conn"
 	redisservice "github.com/terraform-providers/terraform-provider-ncloud/internal/service/redis"
+	"github.com/terraform-providers/terraform-provider-ncloud/internal/verify"
 )
 
 func TestAccResourceNcloudRedis_vpc_basic(t *testing.T) {
@@ -81,7 +81,7 @@ func testAccCheckRedisDestroy(s *terraform.State) error {
 			continue
 		}
 		instance, err := redisservice.GetRedisDetail(context.Background(), config, rs.Primary.ID)
-		if err != nil && !checkNoInstanceResponse(err) {
+		if err != nil && !verify.CheckIfResourceAlreadyDeleted("cdb", err) {
 			return err
 		}
 
@@ -91,10 +91,6 @@ func testAccCheckRedisDestroy(s *terraform.State) error {
 	}
 
 	return nil
-}
-
-func checkNoInstanceResponse(err error) bool {
-	return strings.Contains(err.Error(), "5001017")
 }
 
 func testAccResourceRedisConfig(testRedisName string) string {

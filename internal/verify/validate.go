@@ -118,3 +118,20 @@ func ValidateDateISO8601(v interface{}, k string) (ws []string, errors []error) 
 	}
 	return
 }
+
+func CheckIfResourceAlreadyDeleted(resourceName string, err error) bool {
+	switch resourceName {
+
+	case "cdb":
+		return strings.Contains(err.Error(), "5001017")
+
+	case "initScript":
+		return strings.Contains(err.Error(), "1100000")
+
+	case "targetGroup":
+		return strings.Contains(err.Error(), "1200058")
+
+	}
+
+	return false
+}

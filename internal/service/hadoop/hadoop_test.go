@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/NaverCloudPlatform/ncloud-sdk-go-v2/services/vhadoop"
@@ -16,6 +15,7 @@ import (
 	. "github.com/terraform-providers/terraform-provider-ncloud/internal/acctest"
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/conn"
 	hadoopService "github.com/terraform-providers/terraform-provider-ncloud/internal/service/hadoop"
+	"github.com/terraform-providers/terraform-provider-ncloud/internal/verify"
 )
 
 func TestAccResourceNcloudHadoop_vpc_update(t *testing.T) {
@@ -98,7 +98,7 @@ func testAccCheckHadoopDestroy(s *terraform.State) error {
 			continue
 		}
 		instance, err := hadoopService.GetHadoopInstance(context.Background(), config, rs.Primary.ID)
-		if err != nil && !checkNoInstanceResponse(err) {
+		if err != nil && !verify.CheckIfResourceAlreadyDeleted("cdb", err) {
 			return err
 		}
 
@@ -108,10 +108,6 @@ func testAccCheckHadoopDestroy(s *terraform.State) error {
 	}
 
 	return nil
-}
-
-func checkNoInstanceResponse(err error) bool {
-	return strings.Contains(err.Error(), "5001017")
 }
 
 func testAccHadoopConfigUpdate(testName string, workerCount int, productCode, bucketName string) string {

@@ -14,6 +14,7 @@ import (
 	. "github.com/terraform-providers/terraform-provider-ncloud/internal/acctest"
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/conn"
 	mysqlservice "github.com/terraform-providers/terraform-provider-ncloud/internal/service/mysql"
+	"github.com/terraform-providers/terraform-provider-ncloud/internal/verify"
 )
 
 func TestAccrResourceNcloudMysqlSlave_vpc_basic(t *testing.T) {
@@ -102,7 +103,7 @@ func testAccCheckMysqlSlaveDestroy(s *terraform.State) error {
 			continue
 		}
 		instance, err := mysqlservice.GetMysqlSlave(context.Background(), config, rs.Primary.Attributes["mysql_instance_no"])
-		if err != nil && !mysqlservice.CheckIfAlreadyDeleted(err) {
+		if err != nil && !verify.CheckIfResourceAlreadyDeleted("cdb", err) {
 			return nil
 		}
 

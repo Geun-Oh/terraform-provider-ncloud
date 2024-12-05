@@ -33,6 +33,7 @@ import (
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/conn"
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/framework"
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/service/vpc"
+	"github.com/terraform-providers/terraform-provider-ncloud/internal/verify"
 )
 
 var (
@@ -471,7 +472,7 @@ func GetMssqlInstance(ctx context.Context, config *conn.ProviderConfig, no strin
 	resp, err := config.Client.Vmssql.V2Api.GetCloudMssqlInstanceDetail(reqParams)
 	// If the lookup result is 0, it will respond with a 400 error with a 5001017 return code.
 	// MSSQL deleted, it will respond with a 400 error with a 5001269 return code.
-	if err != nil && !(strings.Contains(err.Error(), `"returnCode": "5001017"`)) && !strings.Contains(err.Error(), `"returnCode": "5001269"`) {
+	if err != nil && !verify.CheckIfResourceAlreadyDeleted("cdb", err) && !strings.Contains(err.Error(), `"returnCode": "5001269"`) {
 		return nil, err
 	}
 	tflog.Info(ctx, "GetMssqlDetail response="+common.MarshalUncheckedString(resp))

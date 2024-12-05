@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/NaverCloudPlatform/ncloud-sdk-go-v2/ncloud"
@@ -31,6 +30,7 @@ import (
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/conn"
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/framework"
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/service/vpc"
+	"github.com/terraform-providers/terraform-provider-ncloud/internal/verify"
 )
 
 var (
@@ -599,7 +599,7 @@ func GetMysqlInstance(ctx context.Context, config *conn.ProviderConfig, no strin
 	tflog.Info(ctx, "GetMysqlDetail reqParams="+common.MarshalUncheckedString(reqParams))
 
 	resp, err := config.Client.Vmysql.V2Api.GetCloudMysqlInstanceDetail(reqParams)
-	if err != nil && !CheckIfAlreadyDeleted(err) {
+	if err != nil && !verify.CheckIfResourceAlreadyDeleted("cdb", err) {
 		return nil, err
 	}
 	tflog.Info(ctx, "GetMysqlDetail response="+common.MarshalUncheckedString(resp))
@@ -806,9 +806,4 @@ func (m *mysqlResourceModel) refreshFromOutput(ctx context.Context, output *vmys
 	mysqlServers, _ := types.ListValueFrom(ctx, types.ObjectType{AttrTypes: mysqlServer{}.attrTypes()}, serverList)
 
 	m.MysqlServerList = mysqlServers
-}
-
-// If the lookup result is 0 or already deleted, it will respond with a 400 error with a 5001017 return code.
-func CheckIfAlreadyDeleted(err error) bool {
-	return strings.Contains(err.Error(), "5001017")
 }

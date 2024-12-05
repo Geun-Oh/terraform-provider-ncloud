@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 	"testing"
 	"time"
 
@@ -16,6 +15,7 @@ import (
 	. "github.com/terraform-providers/terraform-provider-ncloud/internal/acctest"
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/conn"
 	mysqlservice "github.com/terraform-providers/terraform-provider-ncloud/internal/service/mysql"
+	"github.com/terraform-providers/terraform-provider-ncloud/internal/verify"
 )
 
 func TestAccResourceNcloudMysqlRecovery_vpc_basic(t *testing.T) {
@@ -108,7 +108,7 @@ func testAccCheckMysqlRecoveryDestroy(s *terraform.State) error {
 			continue
 		}
 		instance, err := mysqlservice.GetMysqlRecovery(context.Background(), config, rs.Primary.Attributes["mysql_instance_no"])
-		if err != nil && !strings.Contains(err.Error(), "5001017") {
+		if err != nil && !verify.CheckIfResourceAlreadyDeleted("cdb", err) {
 			return nil
 		}
 

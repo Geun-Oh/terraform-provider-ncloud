@@ -3,7 +3,6 @@ package postgresql
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/NaverCloudPlatform/ncloud-sdk-go-v2/ncloud"
@@ -19,6 +18,7 @@ import (
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/common"
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/conn"
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/framework"
+	"github.com/terraform-providers/terraform-provider-ncloud/internal/verify"
 )
 
 var (
@@ -298,7 +298,7 @@ func GetPostgresqlReadReplica(ctx context.Context, config *conn.ProviderConfig, 
 	tflog.Info(ctx, "GetPostgresqlDetail reqParams="+common.MarshalUncheckedString(reqParams))
 
 	resp, err := config.Client.Vpostgresql.V2Api.GetCloudPostgresqlInstanceDetail(reqParams)
-	if err != nil && !(strings.Contains(err.Error(), `"returnCode": "5001017"`)) {
+	if err != nil && !verify.CheckIfResourceAlreadyDeleted("cdb", err) {
 		return nil, err
 	}
 	tflog.Info(ctx, "GetPostgresqlDetail response="+common.MarshalUncheckedString(resp))

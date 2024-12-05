@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
-	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -17,6 +16,7 @@ import (
 	. "github.com/terraform-providers/terraform-provider-ncloud/internal/acctest"
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/conn"
 	postgresqlservice "github.com/terraform-providers/terraform-provider-ncloud/internal/service/postgresql"
+	"github.com/terraform-providers/terraform-provider-ncloud/internal/verify"
 )
 
 func TestAccResourceNcloudPostgresql_vpc_basic(t *testing.T) {
@@ -159,7 +159,7 @@ func testAccCheckPostgresqlDestroy(s *terraform.State) error {
 			continue
 		}
 		instance, err := postgresqlservice.GetPostgresqlInstance(context.Background(), config, rs.Primary.ID)
-		if err != nil && !checkNoInstanceResponse(err) {
+		if err != nil && !verify.CheckIfResourceAlreadyDeleted("cdb", err) {
 			return err
 		}
 
@@ -169,10 +169,6 @@ func testAccCheckPostgresqlDestroy(s *terraform.State) error {
 	}
 
 	return nil
-}
-
-func checkNoInstanceResponse(err error) bool {
-	return strings.Contains(err.Error(), "5001017")
 }
 
 func testAccPostgresqlConfig(testPostgresqlName string) string {

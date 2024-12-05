@@ -33,6 +33,7 @@ import (
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/common"
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/conn"
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/framework"
+	"github.com/terraform-providers/terraform-provider-ncloud/internal/verify"
 )
 
 var (
@@ -729,7 +730,7 @@ func GetHadoopInstance(ctx context.Context, config *conn.ProviderConfig, id stri
 
 	resp, err := config.Client.Vhadoop.V2Api.GetCloudHadoopInstanceDetail(reqParams)
 	// If the lookup result is 0 or already deleted, it will respond with a 400 error with a 5001017 return code.
-	if err != nil && !(strings.Contains(err.Error(), `"returnCode": "5001017"`)) {
+	if err != nil && !verify.CheckIfResourceAlreadyDeleted("cdb", err) {
 		return nil, err
 	}
 	tflog.Info(ctx, "GetHadoopDetail response="+common.MarshalUncheckedString(resp))

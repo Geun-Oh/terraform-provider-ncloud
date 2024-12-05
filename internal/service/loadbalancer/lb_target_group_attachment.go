@@ -14,6 +14,7 @@ import (
 
 	. "github.com/terraform-providers/terraform-provider-ncloud/internal/common"
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/conn"
+	"github.com/terraform-providers/terraform-provider-ncloud/internal/verify"
 )
 
 const (
@@ -187,10 +188,7 @@ func GetVpcLoadBalancerTargetGroupAttachment(config *conn.ProviderConfig, target
 		TargetGroupNo: ncloud.String(targetGroupNo),
 	}
 	resp, err := config.Client.Vloadbalancer.V2Api.GetTargetList(reqParams)
-	if len(resp.TargetList) < 1 {
-		return nil, nil
-	}
-	if err != nil {
+	if err != nil && !verify.CheckIfResourceAlreadyDeleted("targetGroup", err) {
 		return nil, err
 	}
 

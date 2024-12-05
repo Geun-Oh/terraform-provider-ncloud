@@ -3,6 +3,8 @@ package server
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/NaverCloudPlatform/ncloud-sdk-go-v2/ncloud"
 	"github.com/NaverCloudPlatform/ncloud-sdk-go-v2/services/vserver"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -231,7 +233,7 @@ func GetInitScript(ctx context.Context, config *conn.ProviderConfig, id string) 
 	})
 
 	resp, err := config.Client.Vserver.V2Api.GetInitScriptDetail(reqParams)
-	if err != nil {
+	if err != nil && !CheckIfInitScriptDeleted(err) {
 		tflog.Error(ctx, "GetInitScriptDetail", map[string]any{
 			"reqParams": common.MarshalUncheckedString(reqParams),
 			"error":     err,
@@ -289,4 +291,8 @@ func (m *initScriptResourceModel) refreshFromOutput(output *vserver.InitScript) 
 	m.OsType = types.StringPointerValue(output.OsType.Code)
 	m.Content = types.StringPointerValue(output.InitScriptContent)
 	m.InitScriptNo = types.StringPointerValue(output.InitScriptNo)
+}
+
+func CheckIfInitScriptDeleted(err error) bool {
+	return strings.Contains(err.Error(), "1100000")
 }

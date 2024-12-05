@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/NaverCloudPlatform/ncloud-sdk-go-v2/services/vpostgresql"
@@ -15,6 +14,7 @@ import (
 	. "github.com/terraform-providers/terraform-provider-ncloud/internal/acctest"
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/conn"
 	postgresqlservice "github.com/terraform-providers/terraform-provider-ncloud/internal/service/postgresql"
+	"github.com/terraform-providers/terraform-provider-ncloud/internal/verify"
 )
 
 func TestAccResourceNcloudPostgresqlReadReplica_vpc_basic(t *testing.T) {
@@ -105,7 +105,7 @@ func testAccCheckPostgresqlReadReplicaDestroy(s *terraform.State) error {
 			continue
 		}
 		instance, err := postgresqlservice.GetPostgresqlReadReplica(context.Background(), config, rs.Primary.Attributes["postgresql_instance_no"])
-		if err != nil && !strings.Contains(err.Error(), "5001017") {
+		if err != nil && !verify.CheckIfResourceAlreadyDeleted("cdb", err) {
 			return err
 		}
 

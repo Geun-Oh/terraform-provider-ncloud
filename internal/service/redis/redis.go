@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -15,6 +14,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/common"
+	"github.com/terraform-providers/terraform-provider-ncloud/internal/verify"
 
 	"github.com/NaverCloudPlatform/ncloud-sdk-go-v2/ncloud"
 	"github.com/NaverCloudPlatform/ncloud-sdk-go-v2/services/vredis"
@@ -555,7 +555,7 @@ func GetRedisDetail(ctx context.Context, config *conn.ProviderConfig, no string)
 
 	resp, err := config.Client.Vredis.V2Api.GetCloudRedisInstanceDetail(reqParams)
 	// If the lookup result is 0 or already deleted, it will respond with a 400 error with a 5001017 return code.
-	if err != nil && !(strings.Contains(err.Error(), `"returnCode": "5001017"`)) {
+	if err != nil && !verify.CheckIfResourceAlreadyDeleted("cdb", err) {
 		return nil, err
 	}
 	tflog.Info(ctx, "GetRedisDetail response="+common.MarshalUncheckedString(resp))

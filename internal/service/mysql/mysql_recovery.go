@@ -21,6 +21,7 @@ import (
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/common"
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/conn"
 	"github.com/terraform-providers/terraform-provider-ncloud/internal/framework"
+	"github.com/terraform-providers/terraform-provider-ncloud/internal/verify"
 )
 
 const (
@@ -346,7 +347,7 @@ func GetMysqlRecovery(ctx context.Context, config *conn.ProviderConfig, no strin
 	tflog.Info(ctx, "GetMysqlDetail reqParams="+common.MarshalUncheckedString(reqParams))
 
 	resp, err := config.Client.Vmysql.V2Api.GetCloudMysqlInstanceDetail(reqParams)
-	if err != nil && !CheckIfAlreadyDeleted(err) {
+	if err != nil && !verify.CheckIfResourceAlreadyDeleted("cdb", err) {
 		return nil, err
 	}
 	tflog.Info(ctx, "GetMysqlDetail response="+common.MarshalUncheckedString(resp))
