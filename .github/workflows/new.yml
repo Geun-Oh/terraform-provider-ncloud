@@ -3,12 +3,12 @@ name: Dynamic Matrix Workflow
 on:
   push:
     branches:
-      - main
       - ci/test-automation
 
 jobs:
   prepare-matrix:
     runs-on: ubuntu-latest
+    if: ${{ github.repository == 'Geun-Oh/terraform-provider-ncloud' }}
     outputs:
       dynamic-matrix: ${{ steps.convert-to-json.outputs.matrix }}
     steps:
