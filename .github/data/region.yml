@@ -9,25 +9,25 @@ regions:
     - KR
   vpc:
     - KR
-  redis:
-    - KR
+  # redis:
+  #   - KR
   ses:
     - KR
-  nks:
-    - KR
-    - SGN
-    - JPN
+  # nks:
+  #   - KR
+  #   - SGN
+  #   - JPN
   nasvolume:
     - KR
-  mysql:
-    - KR
-  mssql:
-    - KR
-  mongodb:
-    - KR
+  # mysql:
+  #   - KR
+  # mssql:
+  #   - KR
+  # mongodb:
+  #   - KR
   loadbalancer:
     - KR
-  hadoop: 
-    - KR
-  autoscaling:
-    - KR
+  # hadoop: 
+  #   - KR
+  # autoscaling:
+  #   - KR
