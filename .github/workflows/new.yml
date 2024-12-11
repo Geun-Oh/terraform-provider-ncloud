@@ -23,19 +23,19 @@ jobs:
 
           echo "matrix=$matrix_json" >> $GITHUB_OUTPUT
 
-  run-instances:
-    needs: prepare-matrix
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        region_service: ${{ fromJSON(needs.prepare-matrix.outputs.dynamic-matrix) }}
+  # run-instances:
+  #   needs: prepare-matrix
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       region_service: ${{ fromJSON(needs.prepare-matrix.outputs.dynamic-matrix) }}
 
-    steps:
-      - name: Display matrix values
-        run: |
-          echo "Running for service: ${{ matrix.region_service.service }}"
-          echo "Running in region: ${{ matrix.region_service.region }}"
-          ${{ secrets }}
+  #   steps:
+  #     - name: Display matrix values
+  #       run: |
+  #         echo "Running for service: ${{ matrix.region_service.service }}"
+  #         echo "Running in region: ${{ matrix.region_service.region }}"
+  #         ${{ secrets }}
 
   call-workflow:
     needs: prepare-matrix
