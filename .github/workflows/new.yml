@@ -19,35 +19,8 @@ jobs:
         id: convert-to-json
         run: |
           json_output=$(yq eval -o=json .github/data/region.yml)
-          matrix_json=$(echo $json_output | jq -r '
-            .regions | to_entries |
-            map(.key as $service |
-              .value | to_entries |  # 각 서비스의 지역을 처리
-              map(
-                if .value | type == "object" then
-                  {service: $service, region: .key, zone: .value.zone}  # zone 정보가 있는 경우
-                else
-                  {service: $service, region: .}  # zone 정보가 없는 경우
-                end
-              )
-            ) | flatten | @json
-          ')
-
+          matrix_json=$(echo $json_output | jq -r '.')
           echo "matrix=$matrix_json" >> $GITHUB_OUTPUT
-
-  # run-instances:
-  #   needs: prepare-matrix
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       region_service: ${{ fromJSON(needs.prepare-matrix.outputs.dynamic-matrix) }}
-
-  #   steps:
-  #     - name: Display matrix values
-  #       run: |
-  #         echo "Running for service: ${{ matrix.region_service.service }}"
-  #         echo "Running in region: ${{ matrix.region_service.region }}"
-  #         ${{ secrets }}
 
   call-workflow:
     needs: prepare-matrix
