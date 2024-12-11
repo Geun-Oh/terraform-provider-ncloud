@@ -11,7 +11,7 @@ resource "ncloud_subnet" "test" {
 	vpc_no             = ncloud_vpc.test.vpc_no
 	name               = "tf-subnet"
 	subnet             = "10.5.0.0/24"
-	zone               = "KR-2"
+	zone               = local.zone
 	network_acl_no     = ncloud_vpc.test.default_network_acl_no
 	subnet_type        = "PUBLIC"
 	usage_type         = "GEN"

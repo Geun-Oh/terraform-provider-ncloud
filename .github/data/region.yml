@@ -6,7 +6,8 @@ regions:
     - USWN
     - DEN
   server:
-    - KR
+    - KR:
+      zone: KR-2
   vpc:
     - KR
     - SGN
@@ -20,8 +21,9 @@ regions:
     - USWN
     - DEN
   loadbalancer:
-    - KR
-    - SGN
-    - JPN
-    - USWN
-    - DEN
+    - KR:
+      zone: KR-2
+    - SGN:
+      zone: SGN-4
+    - JPN:
+      zone: JPN-4

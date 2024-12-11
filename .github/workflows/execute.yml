@@ -11,6 +11,10 @@ on:
         description: "Input region"
         required: true
         type: string
+      zone:
+        description: "Input zone"
+        required: false
+        type: string
     secrets:
       access_key:
         required: true
@@ -58,9 +62,10 @@ jobs:
           cat << EOF > locals.tf
           locals {
             access_key  = "${{ secrets.access_key }}"
-            secret_key  = "${{ secrets.secret_key }}" 
+            secret_key  = "${{ secrets.secret_key }}"
             region = "${{ inputs.region }}"
-            support_vpc = ${{ inputs.region == 'KR' || inputs.region == 'JPN' || inputs.region == 'SGN' }} 
+            zone = "${{ inputs.zone }}"
+            support_vpc = ${{ inputs.region == 'KR' || inputs.region == 'JPN' || inputs.region == 'SGN' }}
           }
           EOF
 
