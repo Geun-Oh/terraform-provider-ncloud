@@ -19,7 +19,7 @@ jobs:
         id: convert-to-json
         run: |
           json_output=$(yq eval -o=json .github/data/region.yml)
-          matrix_json=$(echo $json_output | jq -r '.')
+          matrix_json=$(echo $json_output | jq -c '.')
           echo "matrix=$matrix_json" >> $GITHUB_OUTPUT
 
   call-workflow:
