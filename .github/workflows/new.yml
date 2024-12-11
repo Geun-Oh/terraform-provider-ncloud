@@ -22,13 +22,15 @@ jobs:
           matrix_json=$(echo $json_output | jq -r '
             .regions | to_entries |
             map(.key as $service |
-              .value[] |
-              if type == "object" then
-                {service: $service, region: .key, zone: .zone}
-              else
-                {service: $service, region: .}
-              end
-            ) | @json
+              .value | to_entries |  # 각 서비스의 지역을 처리
+              map(
+                if .value | type == "object" then
+                  {service: $service, region: .key, zone: .value.zone}  # zone 정보가 있는 경우
+                else
+                  {service: $service, region: .}  # zone 정보가 없는 경우
+                end
+              )
+            ) | flatten | @json
           ')
 
           echo "matrix=$matrix_json" >> $GITHUB_OUTPUT
@@ -57,6 +59,7 @@ jobs:
     with:
       agent: ${{ matrix.region_service.service }}
       region: ${{ matrix.region_service.region }}
+      zone: ${{ matrix.region_service.zone }}
     secrets:
       access_key: ${{ secrets.NCLOUD_ACCESS_KEY }}
       secret_key: ${{ secrets.NCLOUD_SECRET_KEY }}

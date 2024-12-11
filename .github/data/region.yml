@@ -7,7 +7,7 @@ regions:
     - DEN
   server:
     - KR:
-      zone: KR-2
+       zone: KR-2
   vpc:
     - KR
     - SGN
@@ -22,8 +22,8 @@ regions:
     - DEN
   loadbalancer:
     - KR:
-      zone: KR-2
+       zone: KR-2
     - SGN:
-      zone: SGN-4
+       zone: SGN-4
     - JPN:
-      zone: JPN-4
+       zone: JPN-4
