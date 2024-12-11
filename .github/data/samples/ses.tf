@@ -5,7 +5,7 @@ resource "ncloud_vpc" "vpc" {
 
 resource "ncloud_subnet" "node_subnet" {
 	vpc_no             = ncloud_vpc.vpc.vpc_no
-	name               = "tf-test"
+	name               = "tf-ses-subnet"
 	subnet             = "172.16.1.0/24"
 	zone               = "KR-1"
 	network_acl_no     = ncloud_vpc.vpc.default_network_acl_no
@@ -24,11 +24,11 @@ data "ncloud_ses_node_products" "product_codes" {
 }
 
 resource "ncloud_login_key" "loginkey" {
-  key_name = "tf-test-ses"
+  key_name = "tf-ses-loginkey"
 }
 
 resource "ncloud_ses_cluster" "cluster" {
-  cluster_name                  = "tf-test"
+  cluster_name                  = "tf-ses-cluster"
   os_image_code         		= data.ncloud_ses_node_os_images.os_images.images.0.id
   vpc_no                        = ncloud_vpc.vpc.id
   search_engine {
