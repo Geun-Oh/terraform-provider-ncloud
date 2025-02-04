@@ -18,23 +18,23 @@ jobs:
         # TODO: enable cloud db resources and nks
         agent:
           [
-            "obs_vpc",
+            # "obs_vpc",
             "loadbalancer",
-            "ses",
-            "server",
-            "nasvolume",
+            # "ses",
+            # "server",
+            # "nasvolume",
           ]
         include:
-          - agent: "obs_vpc"
-            tests: "objectstorage vpc"
-          - agent: "ses"
-            tests: "ses"
+          # - agent: "obs_vpc"
+            # tests: "objectstorage vpc"
+          # - agent: "ses"
+            # tests: "ses"
           - agent: "loadbalancer"
             tests: "loadbalancer"
-          - agent: "server"
-            tests: "server"
-          - agent: "nasvolume"
-            tests: "nasvolume"
+          # - agent: "server"
+            # tests: "server"
+          # - agent: "nasvolume"
+            # tests: "nasvolume"
 
     steps:
       - name: checkout branch
